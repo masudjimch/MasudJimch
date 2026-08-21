@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Doctor Portfolio</title>
+<meta name="description" content="Personal portfolio — physician & researcher.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-row wrap">
+    <a href="#home" class="brand" id="brand-link">Dr<span>.</span> Portfolio</a>
+    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">☰ Menu</button>
+    <nav class="main-nav" id="main-nav">
+      <ul id="main-nav-list"></ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="wrap">
+      <div>
+        <p class="hero-eyebrow" id="hero-eyebrow"></p>
+        <h1 id="hero-name"></h1>
+        <span class="role" id="hero-role"></span>
+        <p class="tagline" id="hero-tagline"></p>
+        <a class="btn btn-gold" id="hero-cta" href="#contact"></a>
+      </div>
+      <div class="hero-photo-frame">
+        <img id="hero-photo" src="" alt="">
+      </div>
+    </div>
+  </section>
+  <div class="ecg-slot"></div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Background</p>
+        <h2 id="about-heading"></h2>
+      </div>
+      <div class="about-grid">
+        <img class="about-photo" id="about-photo" src="" alt="">
+        <div>
+          <div class="about-text" id="about-text"></div>
+          <ul class="credentials" id="about-credentials"></ul>
+          <div class="stats-row" id="about-stats"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="ecg-slot"></div>
+
+  <!-- PUBLICATIONS -->
+  <section id="publications">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Written work</p>
+        <h2 id="publications-heading"></h2>
+        <p id="publications-subheading"></p>
+      </div>
+      <div class="tabs" id="publications-tabs"></div>
+      <div id="publications-panels"></div>
+    </div>
+  </section>
+  <div class="ecg-slot"></div>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Moments</p>
+        <h2 id="gallery-heading"></h2>
+        <p id="gallery-subheading"></p>
+      </div>
+      <div class="tabs" id="gallery-tabs"></div>
+      <div id="gallery-panels"></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="contact-section" id="contact">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Get in touch</p>
+        <h2 id="contact-heading"></h2>
+        <p id="contact-subheading"></p>
+      </div>
+      <div class="contact-grid">
+        <dl class="contact-block" id="contact-details"></dl>
+        <div class="social-links" id="contact-links"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap" id="footer-note"></div>
+</footer>
+
+<script src="js/content.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

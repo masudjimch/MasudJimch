@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Portfolio Content</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<header class="admin-header">
+  <div class="wrap admin-header-row">
+    <div>
+      <p class="section-eyebrow">Editor</p>
+      <h1>Edit your portfolio content</h1>
+      <p class="admin-help">Change anything below, then click <strong>Download content.js</strong> at the bottom and upload that file into the <code>js/</code> folder of your GitHub repo (replacing the old one). Your live site updates as soon as you commit it.</p>
+    </div>
+    <div class="admin-actions">
+      <a class="btn btn-outline" href="index.html" target="_blank">Preview site ↗</a>
+      <button class="btn btn-gold" id="download-btn">Download content.js</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap admin-main">
+
+  <section class="admin-card">
+    <h2>Site &amp; navigation</h2>
+    <div class="field-grid" id="site-fields"></div>
+    <h3>Menu items</h3>
+    <div id="nav-list" class="repeat-list"></div>
+    <button class="btn-add" data-add="nav">+ Add menu item</button>
+  </section>
+
+  <section class="admin-card">
+    <h2>Home / hero</h2>
+    <div class="field-grid" id="hero-fields"></div>
+  </section>
+
+  <section class="admin-card">
+    <h2>About</h2>
+    <div class="field-grid" id="about-fields"></div>
+    <h3>Bio paragraphs</h3>
+    <div id="about-paragraphs" class="repeat-list"></div>
+    <button class="btn-add" data-add="paragraph">+ Add paragraph</button>
+    <h3>Credentials</h3>
+    <div id="about-credentials-list" class="repeat-list"></div>
+    <button class="btn-add" data-add="credential">+ Add credential</button>
+    <h3>Stats</h3>
+    <div id="about-stats-list" class="repeat-list"></div>
+    <button class="btn-add" data-add="stat">+ Add stat</button>
+  </section>
+
+  <section class="admin-card">
+    <h2>Publications</h2>
+    <div class="field-grid" id="publications-fields"></div>
+    <div id="publications-categories"></div>
+    <button class="btn-add" data-add="pub-category">+ Add category (tab)</button>
+  </section>
+
+  <section class="admin-card">
+    <h2>Gallery</h2>
+    <p class="admin-help">Photo fields take a file path like <code>images/myphoto.jpg</code>. Upload the actual image into the <code>images/</code> folder of your repo with that exact name.</p>
+    <div class="field-grid" id="gallery-fields"></div>
+    <div id="gallery-categories"></div>
+    <button class="btn-add" data-add="gallery-category">+ Add category (tab)</button>
+  </section>
+
+  <section class="admin-card">
+    <h2>Contact</h2>
+    <div class="field-grid" id="contact-fields"></div>
+    <h3>Links</h3>
+    <div id="contact-links-list" class="repeat-list"></div>
+    <button class="btn-add" data-add="contact-link">+ Add link</button>
+  </section>
+
+  <section class="admin-card admin-download-card">
+    <h2>Done editing?</h2>
+    <p class="admin-help">Click below, then replace <code>js/content.js</code> in your GitHub repo with the downloaded file.</p>
+    <button class="btn btn-gold" id="download-btn-bottom">Download content.js</button>
+  </section>
+
+</main>
+
+<script src="js/content.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,173 @@
+// Renders the whole page from SITE_CONTENT (js/content.js).
+// Edit content.js (or use admin.html) — you should not need to touch this file.
+
+const ECG_PATH = "M0 14 L30 14 L38 4 L46 24 L54 8 L62 14 L100 14 L108 2 L116 26 L124 14 L200 14 L208 6 L216 22 L224 14 L300 14 L308 4 L316 24 L324 14 L400 14";
+
+function ecgDivider() {
+  return `<svg class="ecg-divider" viewBox="0 0 400 28" preserveAspectRatio="none" aria-hidden="true">
+    <path d="${ECG_PATH}"/>
+  </svg>`;
+}
+
+function el(html) {
+  const t = document.createElement("template");
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+
+function renderNav() {
+  const nav = document.getElementById("main-nav-list");
+  nav.innerHTML = SITE_CONTENT.nav.map(item =>
+    `<li><a href="${item.href}">${item.label}</a></li>`
+  ).join("");
+
+  document.getElementById("brand-link").innerHTML =
+    `${SITE_CONTENT.site.name.replace(/^Dr\.?\s*/i, "")} <span>Dr</span>`;
+  document.getElementById("brand-link").innerHTML =
+    `Dr<span>.</span> ${SITE_CONTENT.site.name.replace(/^Dr\.?\s*/i, "")}`;
+
+  document.getElementById("nav-toggle").addEventListener("click", () => {
+    document.getElementById("main-nav").classList.toggle("open");
+  });
+}
+
+function renderHero() {
+  const h = SITE_CONTENT.hero;
+  document.getElementById("hero-eyebrow").textContent = h.eyebrow;
+  document.getElementById("hero-name").textContent = h.name;
+  document.getElementById("hero-role").textContent = h.role;
+  document.getElementById("hero-tagline").textContent = h.tagline;
+  document.getElementById("hero-cta").textContent = h.ctaLabel;
+  document.getElementById("hero-cta").href = h.ctaHref;
+  document.getElementById("hero-photo").src = h.photo;
+  document.getElementById("hero-photo").alt = h.name;
+}
+
+function renderAbout() {
+  const a = SITE_CONTENT.about;
+  document.getElementById("about-heading").textContent = a.heading;
+  document.getElementById("about-photo").src = a.photo;
+  document.getElementById("about-photo").alt = a.heading;
+
+  const textWrap = document.getElementById("about-text");
+  textWrap.innerHTML = a.paragraphs.map(p => `<p>${p}</p>`).join("");
+
+  const credList = document.getElementById("about-credentials");
+  credList.innerHTML = a.credentials.map(c => `<li>${c}</li>`).join("");
+
+  const statsRow = document.getElementById("about-stats");
+  statsRow.innerHTML = a.stats.map(s => `
+    <div class="stat">
+      <div class="value">${s.value}</div>
+      <div class="label">${s.label}</div>
+    </div>`).join("");
+}
+
+function renderTabbedSection({ data, tabsElId, panelsElId, itemRenderer }) {
+  const tabsEl = document.getElementById(tabsElId);
+  const panelsEl = document.getElementById(panelsElId);
+
+  tabsEl.innerHTML = data.categories.map((cat, i) =>
+    `<button class="tab-btn ${i === 0 ? "active" : ""}" data-tab="${cat.id}">${cat.label}</button>`
+  ).join("");
+
+  panelsEl.innerHTML = data.categories.map((cat, i) =>
+    `<div class="tab-panel ${i === 0 ? "active" : ""}" data-panel="${cat.id}">
+      ${itemRenderer(cat)}
+    </div>`
+  ).join("");
+
+  tabsEl.addEventListener("click", (e) => {
+    const btn = e.target.closest(".tab-btn");
+    if (!btn) return;
+    const id = btn.dataset.tab;
+    tabsEl.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b === btn));
+    panelsEl.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === id));
+  });
+}
+
+function renderPublications() {
+  const p = SITE_CONTENT.publications;
+  document.getElementById("publications-heading").textContent = p.heading;
+  document.getElementById("publications-subheading").textContent = p.subheading;
+
+  renderTabbedSection({
+    data: p,
+    tabsElId: "publications-tabs",
+    panelsElId: "publications-panels",
+    itemRenderer: (cat) => `
+      <ul class="pub-list">
+        ${cat.items.map(item => `
+          <li class="pub-item">
+            <span class="pub-year">${item.year}</span>
+            <span>
+              <p class="pub-title">${item.title}</p>
+              <span class="pub-journal">${item.journal}</span>
+            </span>
+            <a class="pub-link" href="${item.link}" target="_blank" rel="noopener">View →</a>
+          </li>
+        `).join("")}
+      </ul>
+    `
+  });
+}
+
+function renderGallery() {
+  const g = SITE_CONTENT.gallery;
+  document.getElementById("gallery-heading").textContent = g.heading;
+  document.getElementById("gallery-subheading").textContent = g.subheading;
+
+  renderTabbedSection({
+    data: g,
+    tabsElId: "gallery-tabs",
+    panelsElId: "gallery-panels",
+    itemRenderer: (cat) => `
+      <div class="gallery-grid">
+        ${cat.images.map(img => `
+          <figure class="gallery-card">
+            <img src="${img.src}" alt="${img.caption}" loading="lazy">
+            <figcaption class="gallery-caption">${img.caption}</figcaption>
+          </figure>
+        `).join("")}
+      </div>
+    `
+  });
+}
+
+function renderContact() {
+  const c = SITE_CONTENT.contact;
+  document.getElementById("contact-heading").textContent = c.heading;
+  document.getElementById("contact-subheading").textContent = c.subheading;
+
+  document.getElementById("contact-details").innerHTML = `
+    <dt>Email</dt><dd><a href="mailto:${c.email}">${c.email}</a></dd>
+    <dt>Phone</dt><dd><a href="tel:${c.phone.replace(/[^+\d]/g, "")}">${c.phone}</a></dd>
+    <dt>Location</dt><dd>${c.location}</dd>
+  `;
+
+  document.getElementById("contact-links").innerHTML = c.links.map(l =>
+    `<a href="${l.url}" target="_blank" rel="noopener"><span>${l.label}</span><span>↗</span></a>`
+  ).join("");
+}
+
+function renderFooter() {
+  document.getElementById("footer-note").textContent =
+    `© ${new Date().getFullYear()} ${SITE_CONTENT.site.name}. ${SITE_CONTENT.site.footerNote}`;
+}
+
+function injectDividers() {
+  document.querySelectorAll(".ecg-slot").forEach(slot => {
+    slot.innerHTML = ecgDivider();
+  });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderNav();
+  renderHero();
+  renderAbout();
+  renderPublications();
+  renderGallery();
+  renderContact();
+  renderFooter();
+  injectDividers();
+});
