@@ -62,8 +62,12 @@ async function ghTestConnection(cfg) {
 
 // Looks up the current sha of a file in the repo (needed to update it). Returns null if the file doesn't exist yet.
 async function ghGetFileSha(cfg, path) {
-  const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}?ref=${encodeURIComponent(cfg.branch)}`;
-  const res = await fetch(url, { headers: ghHeaders(cfg.token) });
+  const cacheBuster = Date.now();
+  const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}?ref=${encodeURIComponent(cfg.branch)}&_=${cacheBuster}`;
+  const res = await fetch(url, {
+    headers: ghHeaders(cfg.token),
+    cache: "no-store"
+  });
   if (res.status === 200) {
     const data = await res.json();
     return data.sha;
@@ -74,7 +78,7 @@ async function ghGetFileSha(cfg, path) {
 }
 
 // Creates or updates a file in the repo with the given text content.
-async function ghSaveFile(cfg, path, fileText, commitMessage) {
+async function ghSaveFile(cfg, path, fileText, commitMessage, _isRetry) {
   const sha = await ghGetFileSha(cfg, path);
   const url = `${GH_API}/repos/${cfg.owner}/${cfg.repo}/contents/${path}`;
   const body = {
@@ -93,6 +97,14 @@ async function ghSaveFile(cfg, path, fileText, commitMessage) {
   if (res.status === 200 || res.status === 201) {
     return { ok: true };
   }
+
   const errBody = await res.json().catch(() => ({}));
-  return { ok: false, message: errBody.message || `GitHub returned an error (status ${res.status}).` };
+  const message = errBody.message || `GitHub returned an error (status ${res.status}).`;
+
+  // sha mismatch (someone/something else touched the file between our GET and PUT) — retry once with a fresh sha.
+  if (!_isRetry && res.status === 409 || (!_isRetry && /does not match/i.test(message))) {
+    return ghSaveFile(cfg, path, fileText, commitMessage, true);
+  }
+
+  return { ok: false, message };
 }
