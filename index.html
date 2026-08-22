@@ -7,8 +7,10 @@
 <meta name="description" content="Personal portfolio — physician & researcher.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
+<script src="js/content.js"></script>
+<script src="js/themes.js"></script>
 </head>
 <body>
 
@@ -30,12 +32,16 @@
       <div>
         <p class="hero-eyebrow" id="hero-eyebrow"></p>
         <h1 id="hero-name"></h1>
-        <span class="role" id="hero-role"></span>
+        <div class="role-row">
+          <span class="role" id="hero-role"></span>
+          <span class="status-pill"><span class="status-dot"></span><span id="hero-status"></span></span>
+        </div>
         <p class="tagline" id="hero-tagline"></p>
         <a class="btn btn-gold" id="hero-cta" href="#contact"></a>
       </div>
       <div class="hero-photo-frame">
         <img id="hero-photo" src="" alt="">
+        <div class="hero-badges" id="hero-badges"></div>
       </div>
     </div>
   </section>
@@ -105,10 +111,12 @@
 </main>
 
 <footer class="site-footer">
-  <div class="wrap" id="footer-note"></div>
+  <div class="wrap footer-row">
+    <span id="footer-note"></span>
+    <a href="#home" class="back-to-top">Back to top ↑</a>
+  </div>
 </footer>
 
-<script src="js/content.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

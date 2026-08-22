@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Portfolio Content</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/admin.css">
 </head>
@@ -27,6 +27,12 @@
 <main class="wrap admin-main">
 
   <section class="admin-card">
+    <h2>Theme &amp; style</h2>
+    <p class="admin-help">Pick a look — colors, corner style, and heading font change across the whole site instantly.</p>
+    <div id="theme-swatches" class="theme-swatches"></div>
+  </section>
+
+  <section class="admin-card">
     <h2>Site &amp; navigation</h2>
     <div class="field-grid" id="site-fields"></div>
     <h3>Menu items</h3>
@@ -37,6 +43,9 @@
   <section class="admin-card">
     <h2>Home / hero</h2>
     <div class="field-grid" id="hero-fields"></div>
+    <h3>Floating badges (shown around your photo)</h3>
+    <div id="hero-badges-list" class="repeat-list"></div>
+    <button class="btn-add" data-add="hero-badge">+ Add badge</button>
   </section>
 
   <section class="admin-card">
@@ -85,6 +94,7 @@
 </main>
 
 <script src="js/content.js"></script>
+<script src="js/themes.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

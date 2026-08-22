@@ -33,6 +33,40 @@ function clear(elOrId) {
   return el;
 }
 
+/* ---------------- THEME & STYLE ---------------- */
+function renderThemeSwatches() {
+  const wrap = clear("theme-swatches");
+  data.site.theme = data.site.theme || "navy-gold";
+
+  THEMES.forEach(theme => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "theme-swatch" + (theme.id === data.site.theme ? " active" : "");
+    card.style.setProperty("--sw-paper", theme.vars.paper);
+    card.style.setProperty("--sw-night", theme.vars.night);
+    card.style.setProperty("--sw-gold", theme.vars.gold);
+    card.style.setProperty("--sw-sage", theme.vars.sage);
+    card.style.setProperty("--sw-radius", theme.radius);
+    card.innerHTML = `
+      <span class="sw-dots">
+        <span class="sw-dot sw-dot-paper"></span>
+        <span class="sw-dot sw-dot-night"></span>
+        <span class="sw-dot sw-dot-gold"></span>
+        <span class="sw-dot sw-dot-sage"></span>
+      </span>
+      <span class="sw-name">${theme.name}</span>
+      <span class="sw-desc">${theme.description}</span>
+    `;
+    card.addEventListener("click", () => {
+      data.site.theme = theme.id;
+      applyTheme(theme.id); // instant live preview, including on this admin page
+      renderThemeSwatches();
+      showToast(`Theme set to "${theme.name}" — don't forget to download content.js`);
+    });
+    wrap.appendChild(card);
+  });
+}
+
 /* ---------------- SITE + NAV ---------------- */
 function renderSite() {
   const c = clear("site-fields");
@@ -65,6 +99,20 @@ function renderHero() {
   c.appendChild(field({ label: "Button text", value: h.ctaLabel, onChange: v => h.ctaLabel = v }));
   c.appendChild(field({ label: "Button links to", value: h.ctaHref, onChange: v => h.ctaHref = v }));
   c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: h.photo, onChange: v => h.photo = v, span2: true }));
+  c.appendChild(field({ label: "Status text (e.g. Available)", value: h.status, onChange: v => h.status = v }));
+
+  const badgeList = clear("hero-badges-list");
+  (h.badges || []).forEach((b, i) => {
+    const row = document.createElement("div");
+    row.className = "repeat-item";
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    grid.appendChild(field({ label: "Emoji/icon", value: b.icon, onChange: v => b.icon = v }));
+    grid.appendChild(field({ label: "Label (e.g. Physician)", value: b.label, onChange: v => b.label = v }));
+    row.appendChild(grid);
+    row.appendChild(removeBtn(() => { h.badges.splice(i, 1); renderHero(); }));
+    badgeList.appendChild(row);
+  });
 }
 
 /* ---------------- ABOUT ---------------- */
@@ -106,6 +154,57 @@ function renderAbout() {
   });
 }
 
+/* ---------------- PDF UPLOAD ---------------- */
+const PDF_MAX_BYTES = 4 * 1024 * 1024; // 4MB — keeps content.js a reasonable size
+
+function buildPdfUploader(item, onChange) {
+  const wrap = document.createElement("div");
+  wrap.className = "pdf-uploader";
+
+  const label = document.createElement("label");
+  label.textContent = "Publication PDF";
+  wrap.appendChild(label);
+
+  if (item.pdfDataUrl) {
+    const status = document.createElement("div");
+    status.className = "pdf-status";
+    status.innerHTML = `
+      <span class="pdf-filename">📄 ${item.pdfName || "uploaded.pdf"}</span>
+      <a href="${item.pdfDataUrl}" target="_blank" rel="noopener">Preview</a>
+      <button type="button" class="remove-btn pdf-remove">Remove PDF ✕</button>
+    `;
+    status.querySelector(".pdf-remove").addEventListener("click", () => {
+      item.pdfDataUrl = "";
+      item.pdfName = "";
+      onChange();
+    });
+    wrap.appendChild(status);
+  } else {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/pdf";
+    input.addEventListener("change", () => {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > PDF_MAX_BYTES) {
+        showToast(`"${file.name}" is too large (max 4MB). Try compressing the PDF.`);
+        input.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => {
+        item.pdfDataUrl = reader.result;
+        item.pdfName = file.name;
+        onChange();
+      };
+      reader.readAsDataURL(file);
+    });
+    wrap.appendChild(input);
+  }
+
+  return wrap;
+}
+
 /* ---------------- PUBLICATIONS ---------------- */
 function renderPublications() {
   const c = clear("publications-fields");
@@ -137,8 +236,9 @@ function renderPublications() {
       g.appendChild(field({ label: "Title", value: item.title, span2: true, onChange: v => item.title = v }));
       g.appendChild(field({ label: "Journal / publisher", value: item.journal, onChange: v => item.journal = v }));
       g.appendChild(field({ label: "Year", value: item.year, onChange: v => item.year = v }));
-      g.appendChild(field({ label: "Link (URL)", value: item.link, span2: true, onChange: v => item.link = v }));
+      g.appendChild(field({ label: "Link (URL, optional)", value: item.link, span2: true, onChange: v => item.link = v }));
       row.appendChild(g);
+      row.appendChild(buildPdfUploader(item, () => renderPublications()));
       row.appendChild(removeBtn(() => { cat.items.splice(ii, 1); renderPublications(); }));
       itemsInner.appendChild(row);
     });
@@ -234,6 +334,7 @@ document.addEventListener("click", (e) => {
   if (!btn) return;
   const type = btn.dataset.add;
   if (type === "nav") { data.nav.push({ label: "New item", href: "#" }); renderSite(); }
+  if (type === "hero-badge") { data.hero.badges = data.hero.badges || []; data.hero.badges.push({ icon: "✨", label: "New badge" }); renderHero(); }
   if (type === "paragraph") { data.about.paragraphs.push("New paragraph text."); renderAbout(); }
   if (type === "credential") { data.about.credentials.push("New credential"); renderAbout(); }
   if (type === "stat") { data.about.stats.push({ value: "0", label: "New stat" }); renderAbout(); }
@@ -288,6 +389,7 @@ document.getElementById("download-btn").addEventListener("click", downloadConten
 document.getElementById("download-btn-bottom").addEventListener("click", downloadContent);
 
 /* ---------------- INIT ---------------- */
+renderThemeSwatches();
 renderSite();
 renderHero();
 renderAbout();

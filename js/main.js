@@ -41,6 +41,18 @@ function renderHero() {
   document.getElementById("hero-cta").href = h.ctaHref;
   document.getElementById("hero-photo").src = h.photo;
   document.getElementById("hero-photo").alt = h.name;
+
+  const statusEl = document.getElementById("hero-status");
+  if (statusEl) statusEl.textContent = h.status || "";
+
+  const badgeWrap = document.getElementById("hero-badges");
+  if (badgeWrap && h.badges) {
+    badgeWrap.innerHTML = h.badges.map((b, i) => `
+      <span class="floating-badge fb-${i % 4}" style="--i:${i}">
+        <span class="fb-icon">${b.icon}</span><span class="fb-label">${b.label}</span>
+      </span>
+    `).join("");
+  }
 }
 
 function renderAbout() {
@@ -104,7 +116,10 @@ function renderPublications() {
               <p class="pub-title">${item.title}</p>
               <span class="pub-journal">${item.journal}</span>
             </span>
-            <a class="pub-link" href="${item.link}" target="_blank" rel="noopener">View →</a>
+            <span class="pub-actions">
+              ${item.pdfDataUrl ? `<a class="pub-link pub-pdf" href="${item.pdfDataUrl}" download="${item.pdfName || "publication.pdf"}">⬇ Download PDF</a>` : ""}
+              ${item.link && item.link !== "#" ? `<a class="pub-link" href="${item.link}" target="_blank" rel="noopener">View →</a>` : ""}
+            </span>
           </li>
         `).join("")}
       </ul>
@@ -161,6 +176,50 @@ function injectDividers() {
   });
 }
 
+function numberSections() {
+  const eyebrows = document.querySelectorAll("main section .section-eyebrow");
+  eyebrows.forEach((e, i) => {
+    const num = String(i + 1).padStart(2, "0");
+    e.textContent = `${num} — ${e.textContent}`;
+  });
+}
+
+function setupActiveNav() {
+  const sections = Array.from(document.querySelectorAll("main section[id]"));
+  const links = Array.from(document.querySelectorAll("nav.main-nav a"));
+  if (!sections.length || !links.length) return;
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === `#${id}`));
+      }
+    });
+  }, { rootMargin: "-45% 0px -45% 0px", threshold: 0 });
+
+  sections.forEach(s => observer.observe(s));
+}
+
+function setupScrollReveal() {
+  const targets = document.querySelectorAll(
+    ".section-head, .about-grid, .tabs, .tab-panel.active, .contact-grid, .hero-photo-frame, .hero .wrap > div"
+  );
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("reveal-in");
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  targets.forEach(t => {
+    t.classList.add("reveal");
+    observer.observe(t);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   renderNav();
   renderHero();
@@ -170,4 +229,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderContact();
   renderFooter();
   injectDividers();
+  numberSections();
+  setupActiveNav();
+  setupScrollReveal();
 });

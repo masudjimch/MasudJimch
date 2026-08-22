@@ -26,6 +26,20 @@ A ready-to-publish personal portfolio website. No coding needed to edit it.
 4. In your GitHub repository, open `js/content.js`, click the pencil (edit) icon, delete everything, and paste in the contents of the file you just downloaded. Commit the change.
 5. Your live site updates automatically within a minute.
 
+## How to change the site's colors & style
+
+1. Open `admin.html` → the top card is **Theme & Style**, showing several color swatches (each with a name and a small description).
+2. Click any swatch — the whole page (including the admin panel itself) instantly re-colors so you can preview it.
+3. Click **Download content.js** and replace the file in your repo like usual. Your live site will use the new theme.
+
+## How to upload publication PDFs
+
+1. Open `admin.html` → scroll to **Publications**.
+2. Under any publication entry, click the **Publication PDF** file picker and choose the PDF from your computer.
+3. That's it — the PDF is embedded directly into `content.js` (no separate upload to GitHub needed for the PDF itself). A "⬇ Download PDF" button will appear next to that publication on your live site, so any visitor can click it to download the paper.
+4. Keep each PDF under 4MB so `content.js` doesn't get too large. If a file is bigger, compress it first (there are free online PDF compressors) or host it elsewhere and paste that link into the "Link (URL)" field instead.
+5. Remember to still click **Download content.js** and replace the file in your GitHub repo afterward.
+
 ## How to add your own photos
 
 1. Add your image files (`.jpg` or `.png`) into the `images/` folder in your GitHub repo.

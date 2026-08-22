@@ -34,6 +34,49 @@
 
 .admin-main { padding: 40px 28px 100px; }
 
+.theme-swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+}
+.theme-swatch {
+  text-align: left;
+  background: #fff;
+  border: 2px solid var(--line);
+  padding: 16px;
+  cursor: pointer;
+  border-radius: var(--sw-radius, 4px);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.theme-swatch:hover { transform: translateY(-2px); }
+.theme-swatch.active { border-color: var(--sw-gold); box-shadow: 0 0 0 2px var(--sw-gold) inset; }
+.sw-dots { display: flex; gap: 6px; }
+.sw-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.12);
+}
+.sw-dot-paper { background: var(--sw-paper); }
+.sw-dot-night { background: var(--sw-night); }
+.sw-dot-gold { background: var(--sw-gold); }
+.sw-dot-sage { background: var(--sw-sage); }
+.sw-name {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink);
+}
+.sw-desc {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--ink-soft);
+  line-height: 1.4;
+}
+
 .admin-card {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -111,6 +154,41 @@
   cursor: pointer;
   text-decoration: underline;
 }
+
+.pdf-uploader {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+.pdf-uploader > label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-soft);
+  margin-bottom: 8px;
+}
+.pdf-uploader input[type="file"] {
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+}
+.pdf-status {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+}
+.pdf-filename { font-family: var(--font-mono); font-size: 0.85rem; }
+.pdf-status a {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--night);
+  border-bottom: 1px solid var(--gold);
+  text-decoration: none;
+}
+.pdf-status .remove-btn { position: static; }
 
 .btn-add {
   font-family: var(--font-mono);
