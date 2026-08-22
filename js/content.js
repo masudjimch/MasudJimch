@@ -9,8 +9,8 @@ const SITE_CONTENT = {
     "initials": "YN",
     "tagline": "Doctor | Medical Educator | Tech-freak Thinker",
     "footerNote": "Built with curisity ",
-    "theme": "neon-nights",
-    "fontPreset": "romantic-serif"
+    "theme": "forest-copper",
+    "fontPreset": "theme-default"
   },
   "nav": [
     {
@@ -185,13 +185,13 @@ const SITE_CONTENT = {
         "icon": "🔗"
       },
       {
-        "label": "Twitter / X",
-        "url": "https://x.com/MasudJimch",
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/moshiur-masud-9868b253/",
         "icon": "🔗"
       },
       {
-        "label": "LinkedIn",
-        "url": "https://www.linkedin.com/in/moshiur-masud-9868b253/",
+        "label": "Twitter / X",
+        "url": "https://x.com/MasudJimch",
         "icon": "🔗"
       }
     ],
