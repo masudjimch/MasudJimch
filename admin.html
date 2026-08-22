@@ -15,16 +15,28 @@
     <div>
       <p class="section-eyebrow">Editor</p>
       <h1>Edit your portfolio content</h1>
-      <p class="admin-help">Change anything below, then click <strong>Download content.js</strong> at the bottom and upload that file into the <code>js/</code> folder of your GitHub repo (replacing the old one). Your live site updates as soon as you commit it.</p>
+      <p class="admin-help">Change anything below, then click <strong>Save to GitHub</strong> to publish instantly — or use <strong>Download content.js</strong> if you'd rather upload it yourself.</p>
     </div>
     <div class="admin-actions">
       <a class="btn btn-outline" href="index.html" target="_blank">Preview site ↗</a>
-      <button class="btn btn-gold" id="download-btn">Download content.js</button>
+      <button class="btn btn-gold" id="save-github-btn">Save to GitHub</button>
+      <button class="btn btn-outline" id="download-btn">Download content.js</button>
     </div>
   </div>
 </header>
 
 <main class="wrap admin-main">
+
+  <section class="admin-card" id="github-card">
+    <h2>Connect to GitHub</h2>
+    <p class="admin-help">Do this once — after that, "Save to GitHub" commits your changes directly, no downloading or uploading needed. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create a fine-grained token ↗</a> scoped only to this repository, with <strong>Contents: Read and write</strong> permission.</p>
+    <div class="field-grid" id="github-fields"></div>
+    <div class="admin-actions github-actions">
+      <button class="btn-add" id="github-test-btn">Test connection</button>
+      <button class="btn-add" id="github-forget-btn">Forget saved token</button>
+    </div>
+    <p class="github-status" id="github-status"></p>
+  </section>
 
   <section class="admin-card">
     <h2>Theme &amp; style</h2>
@@ -87,14 +99,18 @@
 
   <section class="admin-card admin-download-card">
     <h2>Done editing?</h2>
-    <p class="admin-help">Click below, then replace <code>js/content.js</code> in your GitHub repo with the downloaded file.</p>
-    <button class="btn btn-gold" id="download-btn-bottom">Download content.js</button>
+    <p class="admin-help">Save directly to GitHub, or download the file and upload it yourself.</p>
+    <div class="admin-actions">
+      <button class="btn btn-gold" id="save-github-btn-bottom">Save to GitHub</button>
+      <button class="btn btn-outline" id="download-btn-bottom">Download content.js</button>
+    </div>
   </section>
 
 </main>
 
 <script src="js/content.js"></script>
 <script src="js/themes.js"></script>
+<script src="js/github-sync.js"></script>
 <script src="js/admin.js"></script>
 </body>
 </html>

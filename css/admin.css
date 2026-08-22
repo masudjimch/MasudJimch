@@ -34,6 +34,17 @@
 
 .admin-main { padding: 40px 28px 100px; }
 
+.github-actions { margin-top: 4px; }
+.github-status {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: var(--sage);
+  margin: 12px 0 0;
+  min-height: 1.2em;
+}
+.github-status.error { color: #a33; }
+#github-card { border-color: var(--gold); border-width: 2px; }
+
 .theme-swatches {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
