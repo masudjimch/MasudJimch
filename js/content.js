@@ -9,7 +9,8 @@ const SITE_CONTENT = {
     "initials": "YN",
     "tagline": "Doctor | Medical Educator | Tech-freak Thinker",
     "footerNote": "Built with curisity ",
-    "theme": "teal-charcoal"
+    "theme": "neon-nights",
+    "fontPreset": "romantic-serif"
   },
   "nav": [
     {
@@ -160,34 +161,51 @@ const SITE_CONTENT = {
   "contact": {
     "heading": "Contact",
     "subheading": "Feel free to reach out for consultations, collaborations, or questions.",
-    "email": "masudj16@gmail.com",
     "phone": "+880 1",
     "location": "Khulna, Bangladesh",
     "links": [
       {
         "label": "ORCID",
-        "url": "https://orcid.org/0009-0003-3666-3746"
+        "url": "https://orcid.org/0009-0003-3666-3746",
+        "icon": "🔗"
       },
       {
         "label": "ResearchGate",
-        "url": "https://www.researchgate.net/profile/Moshiur-Masud?ev=hdr_xprf"
+        "url": "https://www.researchgate.net/profile/Moshiur-Masud?ev=hdr_xprf",
+        "icon": "🔗"
       },
       {
         "label": "Facebook",
-        "url": "https://www.facebook.com/masud.jimch"
+        "url": "https://www.facebook.com/masud.jimch",
+        "icon": "🔗"
       },
       {
         "label": "GitHub",
-        "url": "https://github.com/masudjimch"
+        "url": "https://github.com/masudjimch",
+        "icon": "🔗"
       },
       {
         "label": "Twitter / X",
-        "url": "https://x.com/MasudJimch"
+        "url": "https://x.com/MasudJimch",
+        "icon": "🔗"
       },
       {
         "label": "LinkedIn",
-        "url": "https://www.linkedin.com/in/moshiur-masud-9868b253/"
+        "url": "https://www.linkedin.com/in/moshiur-masud-9868b253/",
+        "icon": "🔗"
+      }
+    ],
+    "emails": [
+      {
+        "icon": "📧",
+        "label": "Email",
+        "value": "masudj16@gmail.com"
       }
     ]
+  },
+  "apps": {
+    "heading": "Apps",
+    "subheading": "Apps I've built — view details, download, or buy.",
+    "items": []
   }
 };
