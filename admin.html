@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Portfolio Content</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Playfair+Display:wght@600;700;800&family=Cormorant+Garamond:wght@600;700&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/admin.css">
 </head>
@@ -18,9 +18,9 @@
       <p class="admin-help">Change anything below, then click <strong>Save to GitHub</strong> to publish instantly — or use <strong>Download content.js</strong> if you'd rather upload it yourself.</p>
     </div>
     <div class="admin-actions">
-      <a class="btn btn-outline" href="index.html" target="_blank">Preview site ↗</a>
-      <button class="btn btn-gold" id="save-github-btn">Save to GitHub</button>
-      <button class="btn btn-outline" id="download-btn">Download content.js</button>
+      <a class="btn btn-outline" href="index.html" target="_blank">👁 Preview site ↗</a>
+      <button class="btn btn-gold" id="save-github-btn">💾 Save to GitHub</button>
+      <button class="btn btn-outline" id="download-btn">⬇ Download content.js</button>
     </div>
   </div>
 </header>
@@ -32,8 +32,8 @@
     <p class="admin-help">Do this once — after that, "Save to GitHub" commits your changes directly, no downloading or uploading needed. <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create a fine-grained token ↗</a> scoped only to this repository, with <strong>Contents: Read and write</strong> permission.</p>
     <div class="field-grid" id="github-fields"></div>
     <div class="admin-actions github-actions">
-      <button class="btn-add" id="github-test-btn">Test connection</button>
-      <button class="btn-add" id="github-forget-btn">Forget saved token</button>
+      <button class="btn-add" id="github-test-btn">🔌 Test connection</button>
+      <button class="btn-add" id="github-forget-btn">🗑 Forget saved token</button>
     </div>
     <p class="github-status" id="github-status"></p>
   </section>
@@ -42,6 +42,12 @@
     <h2>Theme &amp; style</h2>
     <p class="admin-help">Pick a look — colors, corner style, and heading font change across the whole site instantly.</p>
     <div id="theme-swatches" class="theme-swatches"></div>
+  </section>
+
+  <section class="admin-card">
+    <h2>Typography</h2>
+    <p class="admin-help">Optionally override the fonts, independent of the color theme above. Choose "Theme Default" to let the theme decide.</p>
+    <div id="font-swatches" class="theme-swatches"></div>
   </section>
 
   <section class="admin-card">
@@ -82,6 +88,13 @@
   </section>
 
   <section class="admin-card">
+    <h2>Apps</h2>
+    <div class="field-grid" id="apps-fields"></div>
+    <div id="apps-list"></div>
+    <button class="btn-add" data-add="app">+ Add app</button>
+  </section>
+
+  <section class="admin-card">
     <h2>Gallery</h2>
     <p class="admin-help">Photo fields take a file path like <code>images/myphoto.jpg</code>. Upload the actual image into the <code>images/</code> folder of your repo with that exact name.</p>
     <div class="field-grid" id="gallery-fields"></div>
@@ -92,6 +105,9 @@
   <section class="admin-card">
     <h2>Contact</h2>
     <div class="field-grid" id="contact-fields"></div>
+    <h3>Email addresses</h3>
+    <div id="contact-emails-list" class="repeat-list"></div>
+    <button class="btn-add" data-add="contact-email">+ Add email</button>
     <h3>Links</h3>
     <div id="contact-links-list" class="repeat-list"></div>
     <button class="btn-add" data-add="contact-link">+ Add link</button>
@@ -101,8 +117,8 @@
     <h2>Done editing?</h2>
     <p class="admin-help">Save directly to GitHub, or download the file and upload it yourself.</p>
     <div class="admin-actions">
-      <button class="btn btn-gold" id="save-github-btn-bottom">Save to GitHub</button>
-      <button class="btn btn-outline" id="download-btn-bottom">Download content.js</button>
+      <button class="btn btn-gold" id="save-github-btn-bottom">💾 Save to GitHub</button>
+      <button class="btn btn-outline" id="download-btn-bottom">⬇ Download content.js</button>
     </div>
   </section>
 
@@ -110,6 +126,7 @@
 
 <script src="js/content.js"></script>
 <script src="js/themes.js"></script>
+<script src="js/fonts.js"></script>
 <script src="js/github-sync.js"></script>
 <script src="js/admin.js"></script>
 </body>

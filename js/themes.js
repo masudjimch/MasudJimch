@@ -79,6 +79,66 @@ const THEMES = [
       sage: "#4C6E8A",
       line: "rgba(30,39,29,0.12)"
     }
+  },
+  {
+    id: "royal-purple",
+    name: "Royal Purple & Gold",
+    description: "Luxurious dark purple, rich gold, ornate serif headings.",
+    radius: "4px",
+    fontDisplay: "'Playfair Display', Georgia, serif",
+    vars: {
+      paper: "#1A1224", paperDim: "#241A33",
+      ink: "#F3EDE0", inkSoft: "#C9BFD9",
+      night: "#0D0716", nightSoft: "#1D1330",
+      gold: "#D4AF37", goldSoft: "#F0D97A",
+      sage: "#8B6FC9",
+      line: "rgba(243,237,224,0.15)"
+    }
+  },
+  {
+    id: "obsidian-emerald",
+    name: "Obsidian & Emerald",
+    description: "Dark jewel tones — emerald and amber on near-black.",
+    radius: "4px",
+    fontDisplay: "'Cormorant Garamond', Georgia, serif",
+    vars: {
+      paper: "#0F1714", paperDim: "#16211C",
+      ink: "#EAF3EE", inkSoft: "#AFC7BB",
+      night: "#070C0A", nightSoft: "#10201A",
+      gold: "#2FBF8F", goldSoft: "#7BE0BB",
+      sage: "#C9A227",
+      line: "rgba(234,243,238,0.14)"
+    }
+  },
+  {
+    id: "crimson-noir",
+    name: "Crimson Noir",
+    description: "Bold dark luxury — crimson red on near-black, dramatic serif.",
+    radius: "2px",
+    fontDisplay: "'Playfair Display', Georgia, serif",
+    vars: {
+      paper: "#160C0D", paperDim: "#221214",
+      ink: "#F5E9E7", inkSoft: "#D2AFA9",
+      night: "#0A0505", nightSoft: "#1E0F10",
+      gold: "#C0263B", goldSoft: "#E85F6F",
+      sage: "#9C8552",
+      line: "rgba(245,233,231,0.14)"
+    }
+  },
+  {
+    id: "neon-nights",
+    name: "Neon Nights",
+    description: "Colorful electric dark — neon pink & teal, modern rounded sans.",
+    radius: "12px",
+    fontDisplay: "'Space Grotesk', sans-serif",
+    vars: {
+      paper: "#10121C", paperDim: "#191D2E",
+      ink: "#EAF0FF", inkSoft: "#9AA3C7",
+      night: "#06070D", nightSoft: "#141726",
+      gold: "#FF5FA8", goldSoft: "#FFA3CE",
+      sage: "#38E1C6",
+      line: "rgba(234,240,255,0.16)"
+    }
   }
 ];
 

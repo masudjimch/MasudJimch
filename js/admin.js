@@ -4,6 +4,10 @@
 
 let data = JSON.parse(JSON.stringify(SITE_CONTENT)); // working copy
 
+// Backward-compatible: older content.js files won't have an "apps" section yet.
+data.apps = data.apps || { heading: "Apps", subheading: "Apps I've built — view details, download, or buy.", items: [] };
+data.site.fontPreset = data.site.fontPreset || "theme-default";
+
 function field({ label, value, onChange, textarea = false, span2 = false }) {
   const wrap = document.createElement("div");
   wrap.className = "field" + (span2 ? " span-2" : "");
@@ -33,7 +37,103 @@ function clear(elOrId) {
   return el;
 }
 
+/* ---------------- DRAG & REORDER ---------------- */
+function moveInArray(arr, from, to) {
+  if (to < 0 || to >= arr.length || from === to) return;
+  const [item] = arr.splice(from, 1);
+  arr.splice(to, 0, item);
+}
+
+function attachDrag(itemEl, index, arr, rerender) {
+  itemEl.draggable = true;
+  itemEl.addEventListener("dragstart", (e) => {
+    e.dataTransfer.setData("text/plain", String(index));
+    e.dataTransfer.effectAllowed = "move";
+    itemEl.classList.add("dragging");
+  });
+  itemEl.addEventListener("dragend", () => itemEl.classList.remove("dragging"));
+  itemEl.addEventListener("dragover", (e) => { e.preventDefault(); itemEl.classList.add("drag-over"); });
+  itemEl.addEventListener("dragleave", () => itemEl.classList.remove("drag-over"));
+  itemEl.addEventListener("drop", (e) => {
+    e.preventDefault();
+    itemEl.classList.remove("drag-over");
+    const fromIdx = parseInt(e.dataTransfer.getData("text/plain"), 10);
+    if (isNaN(fromIdx)) return;
+    moveInArray(arr, fromIdx, index);
+    rerender();
+  });
+}
+
+// Adds a drag handle + up/down buttons to an item, and wires up drag-and-drop on it.
+function attachReorder(itemEl, arr, index, rerender) {
+  itemEl.classList.add("has-toolbar");
+  const wrap = document.createElement("div");
+  wrap.className = "item-toolbar";
+
+  const handle = document.createElement("span");
+  handle.className = "drag-handle";
+  handle.textContent = "⠿";
+  handle.title = "Drag to reorder";
+
+  const btns = document.createElement("div");
+  btns.className = "reorder-btns";
+  const up = document.createElement("button");
+  up.type = "button"; up.className = "reorder-btn"; up.textContent = "▲"; up.title = "Move up";
+  up.disabled = index === 0;
+  up.addEventListener("click", () => { moveInArray(arr, index, index - 1); rerender(); });
+  const down = document.createElement("button");
+  down.type = "button"; down.className = "reorder-btn"; down.textContent = "▼"; down.title = "Move down";
+  down.disabled = index === arr.length - 1;
+  down.addEventListener("click", () => { moveInArray(arr, index, index + 1); rerender(); });
+  btns.appendChild(up);
+  btns.appendChild(down);
+
+  wrap.appendChild(handle);
+  wrap.appendChild(btns);
+  itemEl.appendChild(wrap);
+  attachDrag(itemEl, index, arr, rerender);
+}
+
+/* ---------------- ICON PICKER ---------------- */
+const ICON_PRESETS = ["📧", "☎️", "🌐", "💼", "✕", "📘", "📷", "▶️", "🐙", "🔬", "🎓", "💬", "✈️", "📍", "🔗", "✨"];
+
+function iconPickerField(label, value, onChange) {
+  const wrap = document.createElement("div");
+  wrap.className = "field icon-picker";
+  const lbl = document.createElement("label");
+  lbl.textContent = label;
+  const input = document.createElement("input");
+  input.type = "text";
+  input.value = value ?? "";
+  input.maxLength = 4;
+  input.addEventListener("input", () => onChange(input.value));
+
+  const chips = document.createElement("div");
+  chips.className = "icon-picker-chips";
+  ICON_PRESETS.forEach(icon => {
+    const chip = document.createElement("button");
+    chip.type = "button";
+    chip.className = "icon-chip" + (icon === value ? " active" : "");
+    chip.textContent = icon;
+    chip.addEventListener("click", () => {
+      input.value = icon;
+      onChange(icon);
+      chips.querySelectorAll(".icon-chip").forEach(c => c.classList.toggle("active", c === chip));
+    });
+    chips.appendChild(chip);
+  });
+
+  wrap.appendChild(lbl);
+  wrap.appendChild(input);
+  wrap.appendChild(chips);
+  return wrap;
+}
+
 /* ---------------- THEME & STYLE ---------------- */
+function refreshStyling() {
+  applyStyling(data.site.theme, data.site.fontPreset);
+}
+
 function renderThemeSwatches() {
   const wrap = clear("theme-swatches");
   data.site.theme = data.site.theme || "navy-gold";
@@ -59,9 +159,32 @@ function renderThemeSwatches() {
     `;
     card.addEventListener("click", () => {
       data.site.theme = theme.id;
-      applyTheme(theme.id); // instant live preview, including on this admin page
+      refreshStyling(); // instant live preview, including on this admin page
       renderThemeSwatches();
-      showToast(`Theme set to "${theme.name}" — don't forget to download content.js`);
+      showToast(`Theme set to "${theme.name}"`);
+    });
+    wrap.appendChild(card);
+  });
+}
+
+function renderFontSwatches() {
+  const wrap = clear("font-swatches");
+  data.site.fontPreset = data.site.fontPreset || "theme-default";
+
+  FONT_PRESETS.forEach(preset => {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "theme-swatch font-swatch" + (preset.id === data.site.fontPreset ? " active" : "");
+    card.innerHTML = `
+      <span class="font-preview" style="font-family:${preset.fontDisplay || "var(--font-display)"}">Aa</span>
+      <span class="sw-name">${preset.name}</span>
+      <span class="sw-desc">${preset.description}</span>
+    `;
+    card.addEventListener("click", () => {
+      data.site.fontPreset = preset.id;
+      refreshStyling();
+      renderFontSwatches();
+      showToast(`Font set to "${preset.name}"`);
     });
     wrap.appendChild(card);
   });
@@ -158,6 +281,7 @@ function renderSite() {
     grid.appendChild(field({ label: "Links to (e.g. #about)", value: item.href, onChange: v => item.href = v }));
     row.appendChild(grid);
     row.appendChild(removeBtn(() => { data.nav.splice(i, 1); renderSite(); }));
+    attachReorder(row, data.nav, i, renderSite);
     navList.appendChild(row);
   });
 }
@@ -171,6 +295,7 @@ function renderHero() {
   c.appendChild(field({ label: "Role / title", value: h.role, onChange: v => h.role = v }));
   c.appendChild(field({ label: "Tagline", value: h.tagline, onChange: v => h.tagline = v, textarea: true, span2: true }));
   c.appendChild(field({ label: "Button text", value: h.ctaLabel, onChange: v => h.ctaLabel = v }));
+  c.appendChild(field({ label: "Button icon (emoji)", value: h.ctaIcon, onChange: v => h.ctaIcon = v }));
   c.appendChild(field({ label: "Button links to", value: h.ctaHref, onChange: v => h.ctaHref = v }));
   c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: h.photo, onChange: v => h.photo = v, span2: true }));
   c.appendChild(field({ label: "Status text (e.g. Available)", value: h.status, onChange: v => h.status = v }));
@@ -185,6 +310,7 @@ function renderHero() {
     grid.appendChild(field({ label: "Label (e.g. Physician)", value: b.label, onChange: v => b.label = v }));
     row.appendChild(grid);
     row.appendChild(removeBtn(() => { h.badges.splice(i, 1); renderHero(); }));
+    attachReorder(row, h.badges, i, renderHero);
     badgeList.appendChild(row);
   });
 }
@@ -279,7 +405,75 @@ function buildPdfUploader(item, onChange) {
   return wrap;
 }
 
-/* ---------------- PUBLICATIONS ---------------- */
+/* ---------------- APPS ---------------- */
+const ICON_MAX_BYTES = 1.5 * 1024 * 1024; // 1.5MB — app icons should be small
+
+function buildIconUploader(app, onChange) {
+  const wrap = document.createElement("div");
+  wrap.className = "pdf-uploader";
+  const label = document.createElement("label");
+  label.textContent = "App icon";
+  wrap.appendChild(label);
+
+  const status = document.createElement("div");
+  status.className = "pdf-status";
+  status.innerHTML = `<img src="${app.icon}" alt="" style="width:40px;height:40px;border-radius:6px;object-fit:cover;">`;
+  wrap.appendChild(status);
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > ICON_MAX_BYTES) {
+      showToast(`"${file.name}" is too large (max 1.5MB). Try a smaller image.`);
+      input.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      app.icon = reader.result;
+      onChange();
+    };
+    reader.readAsDataURL(file);
+  });
+  wrap.appendChild(input);
+  return wrap;
+}
+
+function renderApps() {
+  const c = clear("apps-fields");
+  const apps = data.apps;
+  c.appendChild(field({ label: "Section heading", value: apps.heading, onChange: v => apps.heading = v }));
+  c.appendChild(field({ label: "Subheading", value: apps.subheading, onChange: v => apps.subheading = v, span2: true }));
+
+  const list = clear("apps-list");
+  apps.items.forEach((app, i) => {
+    const row = document.createElement("div");
+    row.className = "repeat-item";
+
+    row.appendChild(buildIconUploader(app, renderApps));
+
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    grid.appendChild(field({ label: "App name", value: app.name, onChange: v => app.name = v }));
+    grid.appendChild(field({ label: "Platform (e.g. Android, iOS, Web)", value: app.platform, onChange: v => app.platform = v }));
+    grid.appendChild(field({ label: "Tagline / short description", value: app.tagline, span2: true, onChange: v => app.tagline = v }));
+    grid.appendChild(field({ label: "Price (e.g. Free, $2.99)", value: app.price, onChange: v => app.price = v }));
+    grid.appendChild(field({ label: "Rating (0–5, e.g. 4.5)", value: String(app.rating ?? ""), onChange: v => app.rating = parseFloat(v) || 0 }));
+    grid.appendChild(field({ label: "Rating count text (e.g. 120 reviews)", value: app.ratingCount, onChange: v => app.ratingCount = v }));
+    grid.appendChild(field({ label: "Primary button label (e.g. Get on Play Store)", value: app.primaryCtaLabel, onChange: v => app.primaryCtaLabel = v }));
+    grid.appendChild(field({ label: "Primary button URL", value: app.primaryCtaUrl, onChange: v => app.primaryCtaUrl = v }));
+    grid.appendChild(field({ label: "Secondary button label (optional, e.g. Direct Download)", value: app.secondaryCtaLabel, onChange: v => app.secondaryCtaLabel = v }));
+    grid.appendChild(field({ label: "Secondary button URL (optional)", value: app.secondaryCtaUrl, onChange: v => app.secondaryCtaUrl = v }));
+    row.appendChild(grid);
+
+    row.appendChild(removeBtn(() => { apps.items.splice(i, 1); renderApps(); }));
+    attachReorder(row, apps.items, i, renderApps);
+    list.appendChild(row);
+  });
+}
 function renderPublications() {
   const c = clear("publications-fields");
   const p = data.publications;
@@ -294,6 +488,7 @@ function renderPublications() {
     h4.textContent = "Tab / category";
     block.appendChild(h4);
     block.appendChild(removeBtn(() => { p.categories.splice(ci, 1); renderPublications(); }));
+    attachReorder(block, p.categories, ci, renderPublications);
 
     const grid = document.createElement("div");
     grid.className = "field-grid";
@@ -345,6 +540,7 @@ function renderGallery() {
     h4.textContent = "Tab / category";
     block.appendChild(h4);
     block.appendChild(removeBtn(() => { g.categories.splice(ci, 1); renderGallery(); }));
+    attachReorder(block, g.categories, ci, renderGallery);
 
     const grid = document.createElement("div");
     grid.className = "field-grid";
@@ -382,11 +578,34 @@ function renderGallery() {
 function renderContact() {
   const c = clear("contact-fields");
   const ct = data.contact;
+
+  // Migrate legacy single-email schema to the new emails[] list, once.
+  if (!ct.emails) {
+    ct.emails = ct.email ? [{ icon: "📧", label: "Email", value: ct.email }] : [{ icon: "📧", label: "Email", value: "" }];
+    delete ct.email;
+  }
+  // Make sure older links (saved before icons existed) have a default icon.
+  (ct.links || []).forEach(l => { if (!l.icon) l.icon = "🔗"; });
+
   c.appendChild(field({ label: "Section heading", value: ct.heading, onChange: v => ct.heading = v }));
   c.appendChild(field({ label: "Subheading", value: ct.subheading, onChange: v => ct.subheading = v, span2: true }));
-  c.appendChild(field({ label: "Email", value: ct.email, onChange: v => ct.email = v }));
   c.appendChild(field({ label: "Phone", value: ct.phone, onChange: v => ct.phone = v }));
-  c.appendChild(field({ label: "Location", value: ct.location, onChange: v => ct.location = v, span2: true }));
+  c.appendChild(field({ label: "Location", value: ct.location, onChange: v => ct.location = v }));
+
+  const emailsList = clear("contact-emails-list");
+  ct.emails.forEach((em, i) => {
+    const row = document.createElement("div");
+    row.className = "repeat-item";
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    grid.appendChild(iconPickerField("Icon", em.icon, v => em.icon = v));
+    grid.appendChild(field({ label: "Label (e.g. Work Email)", value: em.label, onChange: v => em.label = v }));
+    grid.appendChild(field({ label: "Email address", value: em.value, span2: true, onChange: v => em.value = v }));
+    row.appendChild(grid);
+    row.appendChild(removeBtn(() => { ct.emails.splice(i, 1); renderContact(); }));
+    attachReorder(row, ct.emails, i, renderContact);
+    emailsList.appendChild(row);
+  });
 
   const links = clear("contact-links-list");
   ct.links.forEach((l, i) => {
@@ -394,10 +613,12 @@ function renderContact() {
     row.className = "repeat-item";
     const grid = document.createElement("div");
     grid.className = "field-grid";
+    grid.appendChild(iconPickerField("Icon", l.icon, v => l.icon = v));
     grid.appendChild(field({ label: "Label (e.g. LinkedIn)", value: l.label, onChange: v => l.label = v }));
-    grid.appendChild(field({ label: "URL", value: l.url, onChange: v => l.url = v }));
+    grid.appendChild(field({ label: "URL", value: l.url, span2: true, onChange: v => l.url = v }));
     row.appendChild(grid);
     row.appendChild(removeBtn(() => { ct.links.splice(i, 1); renderContact(); }));
+    attachReorder(row, ct.links, i, renderContact);
     links.appendChild(row);
   });
 }
@@ -412,7 +633,16 @@ document.addEventListener("click", (e) => {
   if (type === "paragraph") { data.about.paragraphs.push("New paragraph text."); renderAbout(); }
   if (type === "credential") { data.about.credentials.push("New credential"); renderAbout(); }
   if (type === "stat") { data.about.stats.push({ value: "0", label: "New stat" }); renderAbout(); }
-  if (type === "contact-link") { data.contact.links.push({ label: "New link", url: "https://" }); renderContact(); }
+  if (type === "contact-email") { data.contact.emails = data.contact.emails || []; data.contact.emails.push({ icon: "📧", label: "Email", value: "" }); renderContact(); }
+  if (type === "contact-link") { data.contact.links.push({ icon: "🔗", label: "New link", url: "https://" }); renderContact(); }
+  if (type === "app") {
+    data.apps.items.push({
+      icon: "images/app-icon-placeholder.svg", name: "New App", tagline: "Short description here.",
+      platform: "Android", price: "Free", rating: 5, ratingCount: "",
+      primaryCtaLabel: "View", primaryCtaUrl: "#", secondaryCtaLabel: "", secondaryCtaUrl: ""
+    });
+    renderApps();
+  }
   if (type === "pub-category") {
     data.publications.categories.push({ id: "cat" + Date.now(), label: "New tab", items: [] });
     renderPublications();
@@ -472,9 +702,11 @@ document.getElementById("github-forget-btn").addEventListener("click", handleGit
 /* ---------------- INIT ---------------- */
 renderGithubFields();
 renderThemeSwatches();
+renderFontSwatches();
 renderSite();
 renderHero();
 renderAbout();
 renderPublications();
+renderApps();
 renderGallery();
 renderContact();

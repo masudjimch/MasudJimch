@@ -37,7 +37,7 @@ function renderHero() {
   document.getElementById("hero-name").textContent = h.name;
   document.getElementById("hero-role").textContent = h.role;
   document.getElementById("hero-tagline").textContent = h.tagline;
-  document.getElementById("hero-cta").textContent = h.ctaLabel;
+  document.getElementById("hero-cta").innerHTML = `${h.ctaIcon ? `<span class="btn-icon">${h.ctaIcon}</span>` : ""}${h.ctaLabel}`;
   document.getElementById("hero-cta").href = h.ctaHref;
   document.getElementById("hero-photo").src = h.photo;
   document.getElementById("hero-photo").alt = h.name;
@@ -98,6 +98,52 @@ function renderTabbedSection({ data, tabsElId, panelsElId, itemRenderer }) {
   });
 }
 
+function renderApps() {
+  const a = SITE_CONTENT.apps;
+  const section = document.getElementById("apps");
+  if (!a || !a.items || !a.items.length) {
+    if (section) section.style.display = "none";
+    return;
+  }
+  document.getElementById("apps-heading").textContent = a.heading;
+  document.getElementById("apps-subheading").textContent = a.subheading;
+
+  document.getElementById("apps-grid").innerHTML = (a.items || []).map(app => `
+    <div class="app-card">
+      <div class="app-card-top">
+        <img class="app-icon" src="${app.icon}" alt="${app.name}">
+        <div>
+          <p class="app-name">${app.name}</p>
+          <p class="app-platform">${app.platform || ""}</p>
+        </div>
+      </div>
+      <p class="app-tagline">${app.tagline || ""}</p>
+      <div class="app-meta-row">
+        ${renderStars(app.rating)}
+        <span class="app-rating-count">${app.ratingCount || ""}</span>
+        ${app.price ? `<span class="app-price">${app.price}</span>` : ""}
+      </div>
+      <div class="app-actions">
+        ${app.primaryCtaUrl ? `<a class="btn btn-gold app-btn" href="${app.primaryCtaUrl}" target="_blank" rel="noopener">${app.primaryCtaLabel || "View"}</a>` : ""}
+        ${app.secondaryCtaUrl ? `<a class="btn btn-outline-dark app-btn" href="${app.secondaryCtaUrl}" target="_blank" rel="noopener">${app.secondaryCtaLabel || "Learn more"}</a>` : ""}
+      </div>
+    </div>
+  `).join("");
+}
+
+function renderStars(rating) {
+  const r = Math.max(0, Math.min(5, Number(rating) || 0));
+  const full = Math.floor(r);
+  const half = r - full >= 0.5;
+  let stars = "";
+  for (let i = 0; i < 5; i++) {
+    if (i < full) stars += "★";
+    else if (i === full && half) stars += "⯪";
+    else stars += "☆";
+  }
+  return `<span class="app-stars" title="${r} / 5">${stars}</span>`;
+}
+
 function renderPublications() {
   const p = SITE_CONTENT.publications;
   document.getElementById("publications-heading").textContent = p.heading;
@@ -154,14 +200,25 @@ function renderContact() {
   document.getElementById("contact-heading").textContent = c.heading;
   document.getElementById("contact-subheading").textContent = c.subheading;
 
-  document.getElementById("contact-details").innerHTML = `
-    <dt>Email</dt><dd><a href="mailto:${c.email}">${c.email}</a></dd>
-    <dt>Phone</dt><dd><a href="tel:${c.phone.replace(/[^+\d]/g, "")}">${c.phone}</a></dd>
-    <dt>Location</dt><dd>${c.location}</dd>
-  `;
+  // Backward-compatible: older content.js files had a single c.email string.
+  const emails = (c.emails && c.emails.length) ? c.emails : (c.email ? [{ icon: "📧", label: "Email", value: c.email }] : []);
 
-  document.getElementById("contact-links").innerHTML = c.links.map(l =>
-    `<a href="${l.url}" target="_blank" rel="noopener"><span>${l.label}</span><span>↗</span></a>`
+  let detailsHtml = "";
+  emails.forEach(e => {
+    detailsHtml += `
+      <dt>${e.icon || "📧"} ${e.label || "Email"}</dt>
+      <dd><a href="mailto:${e.value}">${e.value}</a></dd>`;
+  });
+  if (c.phone) {
+    detailsHtml += `<dt>☎️ Phone</dt><dd><a href="tel:${c.phone.replace(/[^+\d]/g, "")}">${c.phone}</a></dd>`;
+  }
+  if (c.location) {
+    detailsHtml += `<dt>📍 Location</dt><dd>${c.location}</dd>`;
+  }
+  document.getElementById("contact-details").innerHTML = detailsHtml;
+
+  document.getElementById("contact-links").innerHTML = (c.links || []).map(l =>
+    `<a href="${l.url}" target="_blank" rel="noopener"><span>${l.icon ? `<span class="btn-icon">${l.icon}</span>` : ""}${l.label}</span><span>↗</span></a>`
   ).join("");
 }
 
@@ -177,7 +234,8 @@ function injectDividers() {
 }
 
 function numberSections() {
-  const eyebrows = document.querySelectorAll("main section .section-eyebrow");
+  const eyebrows = Array.from(document.querySelectorAll("main section .section-eyebrow"))
+    .filter(e => e.closest("section").style.display !== "none");
   eyebrows.forEach((e, i) => {
     const num = String(i + 1).padStart(2, "0");
     e.textContent = `${num} — ${e.textContent}`;
@@ -203,7 +261,7 @@ function setupActiveNav() {
 
 function setupScrollReveal() {
   const targets = document.querySelectorAll(
-    ".section-head, .about-grid, .tabs, .tab-panel.active, .contact-grid, .hero-photo-frame, .hero .wrap > div"
+    ".section-head, .about-grid, .tabs, .tab-panel.active, .apps-grid, .contact-grid, .hero-photo-frame, .hero .wrap > div"
   );
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -225,6 +283,7 @@ document.addEventListener("DOMContentLoaded", () => {
   renderHero();
   renderAbout();
   renderPublications();
+  renderApps();
   renderGallery();
   renderContact();
   renderFooter();

@@ -73,7 +73,7 @@ header.site-header {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(247, 244, 236, 0.92);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
   backdrop-filter: blur(6px);
   border-bottom: 1px solid var(--line);
 }
@@ -162,7 +162,7 @@ nav.main-nav a.active::after { right: 0; background: var(--gold); }
   content: "";
   position: absolute;
   inset: 0;
-  background-image: radial-gradient(rgba(247,244,236,0.06) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px);
   background-size: 26px 26px;
   pointer-events: none;
   opacity: 0.5;
@@ -246,6 +246,7 @@ nav.main-nav a.active::after { right: 0; background: var(--gold); }
   cursor: pointer;
   transition: transform 0.15s ease, background 0.15s ease;
 }
+.btn-icon { margin-right: 8px; }
 .btn:hover { transform: translateY(-1px); }
 .btn-gold {
   background: var(--gold);
@@ -297,6 +298,98 @@ nav.main-nav a.active::after { right: 0; background: var(--gold); }
 @media (max-width: 760px) {
   .floating-badge { display: none; }
 }
+
+/* ===================================================================
+   APPS
+   =================================================================== */
+.apps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 22px;
+}
+.app-card {
+  border: 1px solid var(--line);
+  padding: 22px;
+  background: var(--paper-dim);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.app-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 28px rgba(16, 32, 44, 0.14);
+}
+.app-card-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.app-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.app-name {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0;
+  color: var(--ink);
+}
+.app-platform {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--sage);
+  margin: 3px 0 0;
+}
+.app-tagline {
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  margin: 0;
+  flex-grow: 1;
+}
+.app-meta-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 0.85rem;
+}
+.app-stars {
+  color: var(--gold);
+  letter-spacing: 1px;
+}
+.app-rating-count {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+}
+.app-price {
+  margin-left: auto;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  background: rgba(62,110,99,0.16);
+  color: var(--sage);
+  padding: 3px 9px;
+  border-radius: 999px;
+}
+.app-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.app-btn { padding: 9px 16px; font-size: 0.84rem; }
+.btn-outline-dark {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.btn-outline-dark:hover { border-color: var(--gold); color: var(--gold); }
 
 /* ===================================================================
    SCROLL REVEAL

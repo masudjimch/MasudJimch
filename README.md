@@ -58,6 +58,15 @@ A ready-to-publish personal portfolio website. No coding needed to edit it.
 2. In `admin.html`, set the photo path field to match exactly, e.g. `images/my-photo.jpg`.
 3. Download `content.js` again and update it in your repo (see steps above).
 
+## New features
+
+- **9 themes** with luxurious dark options (Royal Purple & Gold, Obsidian & Emerald, Crimson Noir, Neon Nights), each with its own font.
+- **Typography card**: independently override fonts (7 presets — elegant serif, luxury display, minimal, bold, etc.) regardless of which color theme you pick.
+- **Apps section**: showcase apps you've built, each with an uploaded icon, platform, price, star rating, and up to two buttons (e.g. "Get on Play Store" + "Direct Download"). About the rating: since this is a static site with no backend, the star rating is one you set yourself in `admin.html` (e.g. copy your real Play Store/App Store rating) — it isn't collected live from site visitors. For genuine visitor reviews, link your primary button straight to your app's real Play Store/App Store listing, where real reviews already live.
+- **Reorder tabs/categories, links, and apps**: drag (⠿) or use ▲▼ buttons to reorder Publications tabs, Gallery tabs, menu items, hero badges, apps, and Contact emails/links.
+- **Multiple email addresses**, each with its own icon and label.
+- **Icons on links, buttons, and apps**: contact links/emails have an icon picker, the hero button has an icon field, and apps have an uploaded icon.
+
 ## Notes
 
 - This is a static site (no backend/database), so editing always works the same way: edit in `admin.html` → download → replace `content.js` in GitHub → commit.

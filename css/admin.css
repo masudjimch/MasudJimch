@@ -45,6 +45,14 @@
 .github-status.error { color: #a33; }
 #github-card { border-color: var(--gold); border-width: 2px; }
 
+.font-swatch { align-items: flex-start; }
+.font-preview {
+  font-size: 1.8rem;
+  line-height: 1;
+  color: var(--night);
+  margin-bottom: 2px;
+}
+
 .theme-swatches {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -251,3 +259,58 @@
 @media (max-width: 700px) {
   .field-grid { grid-template-columns: 1fr; }
 }
+
+/* Drag & reorder */
+.drag-handle {
+  cursor: grab;
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  padding: 4px 8px;
+  user-select: none;
+  display: inline-block;
+}
+.drag-handle:active { cursor: grabbing; }
+.reorder-btns {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.reorder-btn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-soft);
+  font-size: 0.65rem;
+  line-height: 1;
+  padding: 3px 6px;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.reorder-btn:hover:not(:disabled) { color: var(--gold); border-color: var(--gold); }
+.reorder-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.item-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+.repeat-item, .category-block { position: relative; }
+.repeat-item.has-toolbar, .category-block.has-toolbar { padding-left: 74px; }
+.dragging { opacity: 0.4; }
+.drag-over { outline: 2px dashed var(--gold); outline-offset: 2px; }
+
+/* Icon picker */
+.icon-picker { display: flex; flex-direction: column; gap: 8px; }
+.icon-picker-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.icon-chip {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 1.05rem;
+  padding: 5px 9px;
+  cursor: pointer;
+  line-height: 1;
+}
+.icon-chip:hover { border-color: var(--gold); }
+.icon-chip.active { border-color: var(--gold); background: rgba(192,138,46,0.12); }
