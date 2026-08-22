@@ -9,7 +9,7 @@ const SITE_CONTENT = {
     "initials": "YN",
     "tagline": "Doctor | Medical Educator | Tech-freak Thinker",
     "footerNote": "Built with curisity ",
-    "theme": "navy-gold"
+    "theme": "teal-charcoal"
   },
   "nav": [
     {
