@@ -37,7 +37,7 @@ const SITE_CONTENT = {
     "eyebrow": "Assalamu 'alaa Manittaba'al Hudaa",
     "name": "Md. Moshiur Rahman",
     "role": "MBBS, MS - Anatomy",
-    "tagline": "",
+    "tagline": "A doctor, medical educator and technology enthusiast exploring the intersection of healthcare, knowledge and digital innovation.",
     "ctaLabel": "Get in touch",
     "ctaHref": "#contact",
     "photo": "images/profile.svg",
@@ -64,8 +64,8 @@ const SITE_CONTENT = {
   "about": {
     "heading": "About",
     "paragraphs": [
-      "I am a physician based in Khulna, Bangladesh, focused on patient-centered care and clinical research.",
-      "Over the years I have worked across hospital medicine, outpatient care, and community health programs, publishing research along the way.",
+      "A research-driven anatomist and academic educator, holding a Master of Science in Anatomy, with expertise spanning research methodology, biostatistics, histology, plastination, and genetic laboratory methodologies. Committed to advancing anatomical sciences through evidence-based pedagogy and rigorous scholarly inquiry, with a particular focus on developing innovative curricula that bridge classical morphological sciences and contemporary biomedical practice.",
+      "",
       "This site brings together my background, publications, and moments from my work — feel free to reach out."
     ],
     "photo": "images/about.svg",
@@ -75,7 +75,7 @@ const SITE_CONTENT = {
         "label": "Years in practice"
       },
       {
-        "value": "20+",
+        "value": "12+",
         "label": "Publications"
       },
       {
@@ -114,34 +114,6 @@ const SITE_CONTENT = {
             "pdfName": ""
           }
         ]
-      },
-      {
-        "id": "articles",
-        "label": "Articles",
-        "items": [
-          {
-            "title": "Sample Article or Opinion Piece",
-            "journal": "Health Magazine",
-            "year": "2024",
-            "link": "#",
-            "pdfDataUrl": "",
-            "pdfName": ""
-          }
-        ]
-      },
-      {
-        "id": "cases",
-        "label": "Case Studies",
-        "items": [
-          {
-            "title": "Sample Case Study Title",
-            "journal": "Clinical Case Reports",
-            "year": "2022",
-            "link": "#",
-            "pdfDataUrl": "",
-            "pdfName": ""
-          }
-        ]
       }
     ]
   },
@@ -172,27 +144,49 @@ const SITE_CONTENT = {
             "caption": "Speaking at a conference"
           }
         ]
+      },
+      {
+        "id": "cat1787384226291",
+        "label": "A journey of curiosity.....",
+        "images": [
+          {
+            "src": "images/new-photo.jpg",
+            "caption": "Caption here"
+          }
+        ]
       }
     ]
   },
   "contact": {
     "heading": "Contact",
     "subheading": "Feel free to reach out for consultations, collaborations, or questions.",
-    "email": "your.email@example.com",
-    "phone": "+880 1XXX-XXXXXX",
+    "email": "masudj16@gmail.com",
+    "phone": "+880 1",
     "location": "Khulna, Bangladesh",
     "links": [
       {
-        "label": "LinkedIn",
-        "url": "https://linkedin.com/in/yourname"
+        "label": "ORCID",
+        "url": "https://orcid.org/0009-0003-3666-3746"
       },
       {
         "label": "ResearchGate",
-        "url": "https://researchgate.net/profile/yourname"
+        "url": "https://www.researchgate.net/profile/Moshiur-Masud?ev=hdr_xprf"
+      },
+      {
+        "label": "Facebook",
+        "url": "https://www.facebook.com/masud.jimch"
+      },
+      {
+        "label": "GitHub",
+        "url": "https://github.com/masudjimch"
       },
       {
         "label": "Twitter / X",
-        "url": "https://x.com/yourname"
+        "url": "https://x.com/MasudJimch"
+      },
+      {
+        "label": "LinkedIn",
+        "url": "https://www.linkedin.com/in/moshiur-masud-9868b253/"
       }
     ]
   }
