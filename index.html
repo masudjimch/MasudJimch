@@ -7,18 +7,22 @@
 <meta name="description" content="Personal portfolio — physician & researcher.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Cormorant+Garamond:wght@600;700&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Playfair+Display:wght@600;700;800&family=Cormorant+Garamond:wght@600;700&family=DM+Serif+Display&family=Abril+Fatface&family=Marcellus&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&family=Poppins:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <script src="js/content.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/fonts.js"></script>
+<script src="js/section-styles.js"></script>
 </head>
 <body>
 
 <header class="site-header">
   <div class="nav-row wrap">
     <a href="#home" class="brand" id="brand-link">Dr<span>.</span> Portfolio</a>
-    <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">☰ Menu</button>
+    <div class="header-right">
+      <button class="lang-toggle" id="lang-toggle" type="button">বাং</button>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">☰ Menu</button>
+    </div>
     <nav class="main-nav" id="main-nav">
       <ul id="main-nav-list"></ul>
     </nav>
@@ -38,7 +42,10 @@
           <span class="status-pill"><span class="status-dot"></span><span id="hero-status"></span></span>
         </div>
         <p class="tagline" id="hero-tagline"></p>
-        <a class="btn btn-gold" id="hero-cta" href="#contact"></a>
+        <div class="hero-cta-row">
+          <a class="btn btn-gold" id="hero-cta" href="#contact"></a>
+          <a class="btn btn-outline" id="hero-cv-btn" href="#" download style="display:none;">📄 Download CV</a>
+        </div>
       </div>
       <div class="hero-photo-frame">
         <img id="hero-photo" src="" alt="">
@@ -94,6 +101,45 @@
   </section>
   <div class="ecg-slot"></div>
 
+  <!-- JOURNEY -->
+  <section id="journey">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Milestones</p>
+        <h2 id="journey-heading"></h2>
+        <p id="journey-subheading"></p>
+      </div>
+      <div class="journey-list" id="journey-list"></div>
+    </div>
+  </section>
+  <div class="ecg-slot"></div>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Kind words</p>
+        <h2 id="testimonials-heading"></h2>
+        <p id="testimonials-subheading"></p>
+      </div>
+      <div class="testimonials-grid" id="testimonials-grid"></div>
+    </div>
+  </section>
+  <div class="ecg-slot"></div>
+
+  <!-- BLOG -->
+  <section id="blog">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Writing</p>
+        <h2 id="blog-heading"></h2>
+        <p id="blog-subheading"></p>
+      </div>
+      <div class="blog-grid" id="blog-grid"></div>
+    </div>
+  </section>
+  <div class="ecg-slot"></div>
+
   <!-- GALLERY -->
   <section id="gallery">
     <div class="wrap">
@@ -104,6 +150,19 @@
       </div>
       <div class="tabs" id="gallery-tabs"></div>
       <div id="gallery-panels"></div>
+    </div>
+  </section>
+  <div class="ecg-slot"></div>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="section-eyebrow">Questions</p>
+        <h2 id="faq-heading"></h2>
+        <p id="faq-subheading"></p>
+      </div>
+      <div class="faq-list" id="faq-list"></div>
     </div>
   </section>
 
@@ -130,6 +189,20 @@
     <a href="#home" class="back-to-top">Back to top ↑</a>
   </div>
 </footer>
+
+<!-- BLOG READ MODAL -->
+<div class="blog-modal" id="blog-modal">
+  <div class="blog-modal-panel">
+    <button class="blog-modal-close" id="blog-modal-close" aria-label="Close">✕</button>
+    <img class="blog-modal-cover" id="blog-modal-cover" src="" alt="" style="display:none;">
+    <p class="blog-modal-date" id="blog-modal-date"></p>
+    <h2 class="blog-modal-title" id="blog-modal-title"></h2>
+    <div class="blog-modal-body" id="blog-modal-body"></div>
+  </div>
+</div>
+
+<!-- WHATSAPP FLOATING BUTTON -->
+<a class="whatsapp-float" id="whatsapp-float" href="#" target="_blank" rel="noopener" style="display:none;" aria-label="Chat on WhatsApp">💬</a>
 
 <script src="js/main.js"></script>
 </body>

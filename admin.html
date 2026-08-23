@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Portfolio Content</title>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Playfair+Display:wght@600;700;800&family=Cormorant+Garamond:wght@600;700&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Playfair+Display:wght@600;700;800&family=Cormorant+Garamond:wght@600;700&family=DM+Serif+Display&family=Abril+Fatface&family=Marcellus&family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=Syne:wght@600;700;800&family=Poppins:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/admin.css">
 </head>
@@ -51,6 +51,12 @@
   </section>
 
   <section class="admin-card">
+    <h2>Section fonts &amp; colors</h2>
+    <p class="admin-help">Give each section its own heading font and accent color — pick a font from the dropdown and a color dot for each section. Changes apply to that section's headings only. Preview on your live/preview site (not shown live here).</p>
+    <div id="section-styles-list" class="section-styles-list"></div>
+  </section>
+
+  <section class="admin-card">
     <h2>Site &amp; navigation</h2>
     <div class="field-grid" id="site-fields"></div>
     <h3>Menu items</h3>
@@ -59,11 +65,23 @@
   </section>
 
   <section class="admin-card">
+    <h2>Site settings</h2>
+    <p class="admin-help">WhatsApp shows a floating chat button (leave blank to hide it). Google Analytics tracks visitors. SEO fields control how your site looks when shared or found on Google.</p>
+    <div class="field-grid" id="site-settings-fields"></div>
+  </section>
+
+  <section class="admin-card">
     <h2>Home / hero</h2>
     <div class="field-grid" id="hero-fields"></div>
     <h3>Floating badges (shown around your photo)</h3>
     <div id="hero-badges-list" class="repeat-list"></div>
     <button class="btn-add" data-add="hero-badge">+ Add badge</button>
+  </section>
+
+  <section class="admin-card">
+    <h2>CV / Resume</h2>
+    <p class="admin-help">Upload your CV as a PDF — a "Download CV" button appears next to your hero button on the live site.</p>
+    <div id="cv-fields"></div>
   </section>
 
   <section class="admin-card">
@@ -95,6 +113,34 @@
   </section>
 
   <section class="admin-card">
+    <h2>Journey (milestones / awards / talks)</h2>
+    <div class="field-grid" id="journey-fields"></div>
+    <div id="journey-list-admin"></div>
+    <button class="btn-add" data-add="journey-item">+ Add milestone</button>
+  </section>
+
+  <section class="admin-card">
+    <h2>Testimonials</h2>
+    <div class="field-grid" id="testimonials-fields"></div>
+    <div id="testimonials-list-admin"></div>
+    <button class="btn-add" data-add="testimonial">+ Add testimonial</button>
+  </section>
+
+  <section class="admin-card">
+    <h2>Blog</h2>
+    <div class="field-grid" id="blog-fields"></div>
+    <div id="blog-list-admin"></div>
+    <button class="btn-add" data-add="blog-post">+ Add blog post</button>
+  </section>
+
+  <section class="admin-card">
+    <h2>FAQ</h2>
+    <div class="field-grid" id="faq-fields"></div>
+    <div id="faq-list-admin"></div>
+    <button class="btn-add" data-add="faq-item">+ Add question</button>
+  </section>
+
+  <section class="admin-card">
     <h2>Gallery</h2>
     <p class="admin-help">Photo fields take a file path like <code>images/myphoto.jpg</code>. Upload the actual image into the <code>images/</code> folder of your repo with that exact name.</p>
     <div class="field-grid" id="gallery-fields"></div>
@@ -118,7 +164,7 @@
     <p class="admin-help">Save directly to GitHub, or download the file and upload it yourself.</p>
     <div class="admin-actions">
       <button class="btn btn-gold" id="save-github-btn-bottom">💾 Save to GitHub</button>
-      <button class="btn btn-outline" id="download-btn-bottom">⬇ Download content.js</button>
+      <button class="btn btn-outline-dark" id="download-btn-bottom">⬇ Download content.js</button>
     </div>
   </section>
 
@@ -127,6 +173,7 @@
 <script src="js/content.js"></script>
 <script src="js/themes.js"></script>
 <script src="js/fonts.js"></script>
+<script src="js/section-styles.js"></script>
 <script src="js/github-sync.js"></script>
 <script src="js/admin.js"></script>
 </body>

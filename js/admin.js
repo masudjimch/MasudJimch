@@ -7,6 +7,12 @@ let data = JSON.parse(JSON.stringify(SITE_CONTENT)); // working copy
 // Backward-compatible: older content.js files won't have an "apps" section yet.
 data.apps = data.apps || { heading: "Apps", subheading: "Apps I've built — view details, download, or buy.", items: [] };
 data.site.fontPreset = data.site.fontPreset || "theme-default";
+data.site.sectionStyles = data.site.sectionStyles || {};
+data.cv = data.cv || { dataUrl: "", name: "" };
+data.journey = data.journey || { heading: "Journey", subheading: "Milestones, awards, and speaking engagements", items: [] };
+data.testimonials = data.testimonials || { heading: "Testimonials", subheading: "What patients and colleagues say", items: [] };
+data.blog = data.blog || { heading: "Blog", subheading: "Notes and articles", items: [] };
+data.faq = data.faq || { heading: "FAQ", subheading: "Common questions", items: [] };
 
 function field({ label, value, onChange, textarea = false, span2 = false }) {
   const wrap = document.createElement("div");
@@ -190,6 +196,61 @@ function renderFontSwatches() {
   });
 }
 
+/* ---------------- PER-SECTION FONT & COLOR ---------------- */
+const SECTION_LABELS = {
+  home: "Home / Hero", about: "About", publications: "Publications", apps: "Apps",
+  journey: "Journey", testimonials: "Testimonials", blog: "Blog",
+  gallery: "Gallery", faq: "FAQ", contact: "Contact"
+};
+
+function renderSectionStyles() {
+  const wrap = clear("section-styles-list");
+  data.site.sectionStyles = data.site.sectionStyles || {};
+
+  SECTION_IDS.forEach(id => {
+    data.site.sectionStyles[id] = data.site.sectionStyles[id] || { font: "theme-default", color: "theme-default" };
+    const conf = data.site.sectionStyles[id];
+
+    const row = document.createElement("div");
+    row.className = "section-style-row";
+
+    const label = document.createElement("div");
+    label.className = "section-style-label";
+    label.textContent = SECTION_LABELS[id] || id;
+    row.appendChild(label);
+
+    const fontSelect = document.createElement("select");
+    fontSelect.className = "section-style-select";
+    HEADING_FONTS.forEach(f => {
+      const opt = document.createElement("option");
+      opt.value = f.id; opt.textContent = f.name;
+      if (f.id === conf.font) opt.selected = true;
+      fontSelect.appendChild(opt);
+    });
+    fontSelect.addEventListener("change", () => { conf.font = fontSelect.value; });
+    row.appendChild(fontSelect);
+
+    const colorWrap = document.createElement("div");
+    colorWrap.className = "section-color-swatches";
+    ACCENT_COLORS.forEach(c => {
+      const dot = document.createElement("button");
+      dot.type = "button";
+      dot.className = "section-color-dot" + (c.id === conf.color ? " active" : "");
+      dot.title = c.name;
+      dot.style.background = c.hex || "repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0/10px 10px";
+      dot.addEventListener("click", () => {
+        conf.color = c.id;
+        colorWrap.querySelectorAll(".section-color-dot").forEach(d => d.classList.remove("active"));
+        dot.classList.add("active");
+      });
+      colorWrap.appendChild(dot);
+    });
+    row.appendChild(colorWrap);
+
+    wrap.appendChild(row);
+  });
+}
+
 /* ---------------- GITHUB CONNECT & SAVE ---------------- */
 function renderGithubFields() {
   const cfg = ghLoadConfig() || { owner: "", repo: "", branch: "main", token: "" };
@@ -264,12 +325,37 @@ async function handleSaveToGithub() {
   }
 }
 
+/* ---------------- BILINGUAL FIELDS ---------------- */
+// Ensures obj[key] is a { en, bn } object — migrates a legacy plain string
+// (same text in both) the first time it's touched, without losing data.
+function ensureBilingual(obj, key) {
+  const v = obj[key];
+  if (v && typeof v === "object") return v;
+  obj[key] = { en: v || "", bn: v || "" };
+  return obj[key];
+}
+
+function bilingualField(label, obj, key, opts = {}) {
+  const val = ensureBilingual(obj, key);
+  const wrap = document.createElement("div");
+  wrap.className = "field bilingual-field" + (opts.span2 ? " span-2" : "");
+  const lbl = document.createElement("label");
+  lbl.textContent = label;
+  wrap.appendChild(lbl);
+  const row = document.createElement("div");
+  row.className = "bilingual-row";
+  row.appendChild(field({ label: "English", value: val.en, textarea: opts.textarea, onChange: v => val.en = v }));
+  row.appendChild(field({ label: "বাংলা", value: val.bn, textarea: opts.textarea, onChange: v => val.bn = v }));
+  wrap.appendChild(row);
+  return wrap;
+}
+
 /* ---------------- SITE + NAV ---------------- */
 function renderSite() {
   const c = clear("site-fields");
   c.appendChild(field({ label: "Your name (shown in header)", value: data.site.name, onChange: v => data.site.name = v }));
   c.appendChild(field({ label: "Tagline", value: data.site.tagline, onChange: v => data.site.tagline = v }));
-  c.appendChild(field({ label: "Footer note", value: data.site.footerNote, onChange: v => data.site.footerNote = v, span2: true }));
+  c.appendChild(bilingualField("Footer note", data.site, "footerNote", { span2: true }));
 
   const navList = clear("nav-list");
   data.nav.forEach((item, i) => {
@@ -277,28 +363,34 @@ function renderSite() {
     row.className = "repeat-item";
     const grid = document.createElement("div");
     grid.className = "field-grid";
-    grid.appendChild(field({ label: "Menu label", value: item.label, onChange: v => item.label = v }));
+    grid.appendChild(bilingualField("Menu label", item, "label"));
     grid.appendChild(field({ label: "Links to (e.g. #about)", value: item.href, onChange: v => item.href = v }));
     row.appendChild(grid);
     row.appendChild(removeBtn(() => { data.nav.splice(i, 1); renderSite(); }));
     attachReorder(row, data.nav, i, renderSite);
     navList.appendChild(row);
   });
+
+  const s = clear("site-settings-fields");
+  s.appendChild(field({ label: "WhatsApp number (with country code, digits only, e.g. 8801XXXXXXXXX)", value: data.site.whatsapp, onChange: v => data.site.whatsapp = v }));
+  s.appendChild(field({ label: "Google Analytics ID (e.g. G-XXXXXXX, leave blank to disable)", value: data.site.gaId, onChange: v => data.site.gaId = v }));
+  s.appendChild(field({ label: "SEO description (shown in Google/social previews)", value: data.site.seoDescription, textarea: true, span2: true, onChange: v => data.site.seoDescription = v }));
+  s.appendChild(field({ label: "Social preview image path (images/yourfile.jpg)", value: data.site.socialImage, span2: true, onChange: v => data.site.socialImage = v }));
 }
 
 /* ---------------- HERO ---------------- */
 function renderHero() {
   const c = clear("hero-fields");
   const h = data.hero;
-  c.appendChild(field({ label: "Small label above name", value: h.eyebrow, onChange: v => h.eyebrow = v }));
+  c.appendChild(bilingualField("Small label above name", h, "eyebrow"));
   c.appendChild(field({ label: "Full name / heading", value: h.name, onChange: v => h.name = v }));
-  c.appendChild(field({ label: "Role / title", value: h.role, onChange: v => h.role = v }));
-  c.appendChild(field({ label: "Tagline", value: h.tagline, onChange: v => h.tagline = v, textarea: true, span2: true }));
-  c.appendChild(field({ label: "Button text", value: h.ctaLabel, onChange: v => h.ctaLabel = v }));
+  c.appendChild(bilingualField("Role / title", h, "role"));
+  c.appendChild(bilingualField("Tagline", h, "tagline", { textarea: true, span2: true }));
+  c.appendChild(bilingualField("Button text", h, "ctaLabel"));
   c.appendChild(field({ label: "Button icon (emoji)", value: h.ctaIcon, onChange: v => h.ctaIcon = v }));
   c.appendChild(field({ label: "Button links to", value: h.ctaHref, onChange: v => h.ctaHref = v }));
   c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: h.photo, onChange: v => h.photo = v, span2: true }));
-  c.appendChild(field({ label: "Status text (e.g. Available)", value: h.status, onChange: v => h.status = v }));
+  c.appendChild(bilingualField("Status text (e.g. Available)", h, "status"));
 
   const badgeList = clear("hero-badges-list");
   (h.badges || []).forEach((b, i) => {
@@ -315,11 +407,50 @@ function renderHero() {
   });
 }
 
+/* ---------------- CV / RESUME ---------------- */
+const CV_MAX_BYTES = 6 * 1024 * 1024; // 6MB
+
+function renderCv() {
+  const wrap = clear("cv-fields");
+  const cv = data.cv;
+
+  if (cv.dataUrl) {
+    const status = document.createElement("div");
+    status.className = "pdf-status";
+    status.innerHTML = `
+      <span class="pdf-filename">📄 ${cv.name || "CV.pdf"}</span>
+      <a href="${cv.dataUrl}" target="_blank" rel="noopener">Preview</a>
+      <button type="button" class="remove-btn pdf-remove">Remove CV ✕</button>
+    `;
+    status.querySelector(".pdf-remove").addEventListener("click", () => {
+      cv.dataUrl = ""; cv.name = ""; renderCv();
+    });
+    wrap.appendChild(status);
+  } else {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "application/pdf";
+    input.addEventListener("change", () => {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > CV_MAX_BYTES) {
+        showToast(`"${file.name}" is too large (max 6MB). Try compressing the PDF.`);
+        input.value = "";
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = () => { cv.dataUrl = reader.result; cv.name = file.name; renderCv(); };
+      reader.readAsDataURL(file);
+    });
+    wrap.appendChild(input);
+  }
+}
+
 /* ---------------- ABOUT ---------------- */
 function renderAbout() {
   const c = clear("about-fields");
   const a = data.about;
-  c.appendChild(field({ label: "Section heading", value: a.heading, onChange: v => a.heading = v }));
+  c.appendChild(bilingualField("Section heading", a, "heading"));
   c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: a.photo, onChange: v => a.photo = v }));
 
   const paras = clear("about-paragraphs");
@@ -445,8 +576,8 @@ function buildIconUploader(app, onChange) {
 function renderApps() {
   const c = clear("apps-fields");
   const apps = data.apps;
-  c.appendChild(field({ label: "Section heading", value: apps.heading, onChange: v => apps.heading = v }));
-  c.appendChild(field({ label: "Subheading", value: apps.subheading, onChange: v => apps.subheading = v, span2: true }));
+  c.appendChild(bilingualField("Section heading", apps, "heading"));
+  c.appendChild(bilingualField("Subheading", apps, "subheading", { span2: true }));
 
   const list = clear("apps-list");
   apps.items.forEach((app, i) => {
@@ -477,8 +608,8 @@ function renderApps() {
 function renderPublications() {
   const c = clear("publications-fields");
   const p = data.publications;
-  c.appendChild(field({ label: "Section heading", value: p.heading, onChange: v => p.heading = v }));
-  c.appendChild(field({ label: "Subheading", value: p.subheading, onChange: v => p.subheading = v }));
+  c.appendChild(bilingualField("Section heading", p, "heading"));
+  c.appendChild(bilingualField("Subheading", p, "subheading"));
 
   const catsWrap = clear("publications-categories");
   p.categories.forEach((cat, ci) => {
@@ -525,12 +656,139 @@ function renderPublications() {
   });
 }
 
+/* ---------------- JOURNEY ---------------- */
+function renderJourney() {
+  const c = clear("journey-fields");
+  const j = data.journey;
+  c.appendChild(bilingualField("Section heading", j, "heading"));
+  c.appendChild(bilingualField("Subheading", j, "subheading", { span2: true }));
+
+  const list = clear("journey-list-admin");
+  j.items.forEach((item, i) => {
+    const row = document.createElement("div");
+    row.className = "repeat-item";
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    grid.appendChild(field({ label: "Year", value: item.year, onChange: v => item.year = v }));
+    grid.appendChild(field({ label: "Title", value: item.title, onChange: v => item.title = v }));
+    grid.appendChild(field({ label: "Description", value: item.description, span2: true, textarea: true, onChange: v => item.description = v }));
+    row.appendChild(grid);
+    row.appendChild(removeBtn(() => { j.items.splice(i, 1); renderJourney(); }));
+    attachReorder(row, j.items, i, renderJourney);
+    list.appendChild(row);
+  });
+}
+
+/* ---------------- TESTIMONIALS ---------------- */
+function buildPhotoUploader(target, key, onChange) {
+  const wrap = document.createElement("div");
+  wrap.className = "pdf-uploader";
+  const label = document.createElement("label");
+  label.textContent = "Photo (optional)";
+  wrap.appendChild(label);
+
+  if (target[key]) {
+    const status = document.createElement("div");
+    status.className = "pdf-status";
+    status.innerHTML = `<img src="${target[key]}" alt="" style="width:40px;height:40px;border-radius:50%;object-fit:cover;">`;
+    const rm = document.createElement("button");
+    rm.type = "button"; rm.className = "remove-btn"; rm.textContent = "Remove photo ✕";
+    rm.addEventListener("click", () => { target[key] = ""; onChange(); });
+    status.appendChild(rm);
+    wrap.appendChild(status);
+  } else {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.addEventListener("change", () => {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > ICON_MAX_BYTES) { showToast(`"${file.name}" is too large (max 1.5MB).`); input.value = ""; return; }
+      const reader = new FileReader();
+      reader.onload = () => { target[key] = reader.result; onChange(); };
+      reader.readAsDataURL(file);
+    });
+    wrap.appendChild(input);
+  }
+  return wrap;
+}
+
+function renderTestimonials() {
+  const c = clear("testimonials-fields");
+  const te = data.testimonials;
+  c.appendChild(bilingualField("Section heading", te, "heading"));
+  c.appendChild(bilingualField("Subheading", te, "subheading", { span2: true }));
+
+  const list = clear("testimonials-list-admin");
+  te.items.forEach((item, i) => {
+    const row = document.createElement("div");
+    row.className = "repeat-item";
+    row.appendChild(buildPhotoUploader(item, "photo", renderTestimonials));
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    grid.appendChild(field({ label: "Name", value: item.name, onChange: v => item.name = v }));
+    grid.appendChild(field({ label: "Role (e.g. Patient, Colleague)", value: item.role, onChange: v => item.role = v }));
+    grid.appendChild(field({ label: "Quote", value: item.quote, span2: true, textarea: true, onChange: v => item.quote = v }));
+    row.appendChild(grid);
+    row.appendChild(removeBtn(() => { te.items.splice(i, 1); renderTestimonials(); }));
+    attachReorder(row, te.items, i, renderTestimonials);
+    list.appendChild(row);
+  });
+}
+
+/* ---------------- BLOG ---------------- */
+function renderBlog() {
+  const c = clear("blog-fields");
+  const b = data.blog;
+  c.appendChild(bilingualField("Section heading", b, "heading"));
+  c.appendChild(bilingualField("Subheading", b, "subheading", { span2: true }));
+
+  const list = clear("blog-list-admin");
+  b.items.forEach((item, i) => {
+    const row = document.createElement("div");
+    row.className = "repeat-item";
+    row.appendChild(buildPhotoUploader(item, "cover", () => renderBlog()));
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    grid.appendChild(field({ label: "Title", value: item.title, span2: true, onChange: v => item.title = v }));
+    grid.appendChild(field({ label: "Date (YYYY-MM-DD)", value: item.date, onChange: v => item.date = v }));
+    grid.appendChild(field({ label: "Excerpt (shows on the card)", value: item.excerpt, span2: true, textarea: true, onChange: v => item.excerpt = v }));
+    grid.appendChild(field({ label: "Full post content (blank line = new paragraph)", value: item.content, span2: true, textarea: true, onChange: v => item.content = v }));
+    row.appendChild(grid);
+    row.appendChild(removeBtn(() => { b.items.splice(i, 1); renderBlog(); }));
+    attachReorder(row, b.items, i, renderBlog);
+    list.appendChild(row);
+  });
+}
+
+/* ---------------- FAQ ---------------- */
+function renderFaq() {
+  const c = clear("faq-fields");
+  const f = data.faq;
+  c.appendChild(bilingualField("Section heading", f, "heading"));
+  c.appendChild(bilingualField("Subheading", f, "subheading", { span2: true }));
+
+  const list = clear("faq-list-admin");
+  f.items.forEach((item, i) => {
+    const row = document.createElement("div");
+    row.className = "repeat-item";
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    grid.appendChild(field({ label: "Question", value: item.q, span2: true, onChange: v => item.q = v }));
+    grid.appendChild(field({ label: "Answer", value: item.a, span2: true, textarea: true, onChange: v => item.a = v }));
+    row.appendChild(grid);
+    row.appendChild(removeBtn(() => { f.items.splice(i, 1); renderFaq(); }));
+    attachReorder(row, f.items, i, renderFaq);
+    list.appendChild(row);
+  });
+}
+
 /* ---------------- GALLERY ---------------- */
 function renderGallery() {
   const c = clear("gallery-fields");
   const g = data.gallery;
-  c.appendChild(field({ label: "Section heading", value: g.heading, onChange: v => g.heading = v }));
-  c.appendChild(field({ label: "Subheading", value: g.subheading, onChange: v => g.subheading = v }));
+  c.appendChild(bilingualField("Section heading", g, "heading"));
+  c.appendChild(bilingualField("Subheading", g, "subheading"));
 
   const catsWrap = clear("gallery-categories");
   g.categories.forEach((cat, ci) => {
@@ -587,8 +845,8 @@ function renderContact() {
   // Make sure older links (saved before icons existed) have a default icon.
   (ct.links || []).forEach(l => { if (!l.icon) l.icon = "🔗"; });
 
-  c.appendChild(field({ label: "Section heading", value: ct.heading, onChange: v => ct.heading = v }));
-  c.appendChild(field({ label: "Subheading", value: ct.subheading, onChange: v => ct.subheading = v, span2: true }));
+  c.appendChild(bilingualField("Section heading", ct, "heading"));
+  c.appendChild(bilingualField("Subheading", ct, "subheading", { span2: true }));
   c.appendChild(field({ label: "Phone", value: ct.phone, onChange: v => ct.phone = v }));
   c.appendChild(field({ label: "Location", value: ct.location, onChange: v => ct.location = v }));
 
@@ -635,6 +893,22 @@ document.addEventListener("click", (e) => {
   if (type === "stat") { data.about.stats.push({ value: "0", label: "New stat" }); renderAbout(); }
   if (type === "contact-email") { data.contact.emails = data.contact.emails || []; data.contact.emails.push({ icon: "📧", label: "Email", value: "" }); renderContact(); }
   if (type === "contact-link") { data.contact.links.push({ icon: "🔗", label: "New link", url: "https://" }); renderContact(); }
+  if (type === "journey-item") {
+    data.journey.items.push({ year: "2025", title: "New milestone", description: "" });
+    renderJourney();
+  }
+  if (type === "testimonial") {
+    data.testimonials.items.push({ name: "New person", role: "", quote: "", photo: "" });
+    renderTestimonials();
+  }
+  if (type === "blog-post") {
+    data.blog.items.push({ title: "New post", date: new Date().toISOString().slice(0, 10), cover: "", excerpt: "", content: "" });
+    renderBlog();
+  }
+  if (type === "faq-item") {
+    data.faq.items.push({ q: "New question?", a: "" });
+    renderFaq();
+  }
   if (type === "app") {
     data.apps.items.push({
       icon: "images/app-icon-placeholder.svg", name: "New App", tagline: "Short description here.",
@@ -703,10 +977,16 @@ document.getElementById("github-forget-btn").addEventListener("click", handleGit
 renderGithubFields();
 renderThemeSwatches();
 renderFontSwatches();
+renderSectionStyles();
 renderSite();
 renderHero();
+renderCv();
 renderAbout();
 renderPublications();
 renderApps();
+renderJourney();
+renderTestimonials();
+renderBlog();
+renderFaq();
 renderGallery();
 renderContact();

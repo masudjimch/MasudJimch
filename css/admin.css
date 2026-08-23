@@ -2,7 +2,7 @@
 
 .admin-header {
   background: var(--night);
-  color: var(--paper);
+  color: var(--on-dark);
   padding: 40px 0;
 }
 .admin-header-row {
@@ -49,8 +49,60 @@
 .font-preview {
   font-size: 1.8rem;
   line-height: 1;
-  color: var(--night);
+  color: var(--ink);
   margin-bottom: 2px;
+}
+
+.bilingual-field > label { margin-bottom: 6px; }
+.bilingual-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.bilingual-row .field label {
+  font-size: 0.68rem;
+  color: var(--sage);
+}
+@media (max-width: 700px) {
+  .bilingual-row { grid-template-columns: 1fr; }
+}
+
+.section-styles-list { display: flex; flex-direction: column; gap: 12px; }
+.section-style-row {
+  display: grid;
+  grid-template-columns: 130px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  background: var(--paper-dim);
+}
+.section-style-label {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+.section-style-select {
+  font-family: var(--font-body);
+  font-size: 0.88rem;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  color: var(--ink);
+}
+.section-color-swatches { display: flex; flex-wrap: wrap; gap: 5px; max-width: 320px; }
+.section-color-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.section-color-dot.active { border-color: var(--ink); box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--gold); }
+@media (max-width: 760px) {
+  .section-style-row { grid-template-columns: 1fr; }
 }
 
 .theme-swatches {
@@ -203,7 +255,7 @@
 .pdf-status a {
   font-family: var(--font-mono);
   font-size: 0.8rem;
-  color: var(--night);
+  color: var(--ink);
   border-bottom: 1px solid var(--gold);
   text-decoration: none;
 }
@@ -233,7 +285,7 @@
   font-family: var(--font-mono);
   font-size: 0.8rem;
   text-transform: uppercase;
-  color: var(--night);
+  color: var(--ink);
   margin: 0 0 12px;
 }
 .items-inner { margin-top: 14px; padding-left: 14px; border-left: 2px solid var(--gold); }
@@ -244,7 +296,7 @@
   left: 50%;
   transform: translateX(-50%) translateY(10px);
   background: var(--night);
-  color: var(--paper);
+  color: #F7F4EC;
   padding: 12px 22px;
   border-radius: var(--radius);
   font-family: var(--font-mono);

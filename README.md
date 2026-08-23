@@ -58,6 +58,36 @@ A ready-to-publish personal portfolio website. No coding needed to edit it.
 2. In `admin.html`, set the photo path field to match exactly, e.g. `images/my-photo.jpg`.
 3. Download `content.js` again and update it in your repo (see steps above).
 
+## New features (this round)
+
+- **Dark theme text-visibility bug fixed**: some headings/buttons were using a text color that matched the background in dark themes, making them invisible. This is fixed across all 9 themes.
+- **Per-section fonts & colors**: a new "Section fonts & colors" card in `admin.html` lets you pick a different heading font and accent color for each section (Home, About, Publications, Apps, Journey, Testimonials, Blog, Gallery, FAQ, Contact) independently — 11 fonts and 17 colors to choose from. Leave any section on "Theme Default" to keep it matching the rest of the site.
+- **Real content filled in** from your CV: About, credentials, career Journey timeline, all 13 publications, and Contact details (both emails, phone, address, ResearchGate/ORCID/Academia.edu/ScienceOpen links).
+- **CV embedded**: your CV PDF is already embedded in `content.js` — the "Download CV" button works immediately, no upload step needed.
+- **WhatsApp number** was pre-filled from your CV — clear it in Site settings if you'd rather not show the floating WhatsApp button.
+- **Testimonials section** is currently empty (hidden on the live site) since no real testimonials were provided — add some in `admin.html` whenever you have them, and the section will reappear automatically.
+
+## New features (latest round)
+
+- **Bangla/English toggle**: a "বাং/EN" button in the header switches the language. **Scope**: this switches navigation labels, section headings/subheadings, hero text, and the footer note (write both languages for these in `admin.html` — each has an "English" and "বাংলা" box). Longer content you write yourself — About paragraphs, publication details, app details, gallery captions, testimonials, FAQ answers, blog posts, journey entries — is single-language: whatever you type shows regardless of the toggle. You can still write any of that content in Bangla directly if you want the whole site in Bangla.
+- **CV / Resume download**: upload your CV as a PDF under the **CV / Resume** card — a "📄 Download CV" button appears next to your hero button.
+- **Journey section**: a timeline for milestones, awards, and speaking engagements (year, title, description).
+- **Testimonials section**: patient/colleague quotes, each with an optional uploaded photo.
+- **Blog section**: posts with a title, date, cover image, excerpt (shown on the card), and full content — clicking a post opens it in a reading modal, all on one page (no separate blog engine needed).
+- **FAQ section**: click-to-expand question/answer accordion.
+- **WhatsApp floating button**: set your number (with country code, digits only) in **Site settings** — a floating chat button appears on every page. Leave blank to hide it.
+- **Google Analytics**: paste your Measurement ID (e.g. `G-XXXXXXX`) in **Site settings** to track visitors. Leave blank to disable.
+- **SEO & social preview**: set a description and preview image in **Site settings** — controls how your site looks when shared on WhatsApp/Facebook/Twitter or found on Google.
+- **Custom 404 page**: `404.html` is included and styled to match your theme — GitHub Pages automatically shows it for broken links, no setup needed.
+- Any of the new sections (Journey, Testimonials, Blog, FAQ) automatically hides itself on the live site if you delete all its entries — no need to remove it from the menu manually, though you may want to for tidiness.
+
+## Setting up a custom domain (optional)
+
+1. Buy a domain from any registrar (Namecheap, GoDaddy, etc.).
+2. In the registrar's DNS settings, add a `CNAME` record pointing your domain (or subdomain like `www`) to `your-username.github.io`.
+3. In your GitHub repo, go to **Settings → Pages → Custom domain**, type your domain, and save. GitHub creates a `CNAME` file in your repo automatically.
+4. Wait for DNS to propagate (can take a few hours), then check "Enforce HTTPS" once it's available.
+
 ## New features
 
 - **9 themes** with luxurious dark options (Royal Purple & Gold, Obsidian & Emerald, Crimson Noir, Neon Nights), each with its own font.
