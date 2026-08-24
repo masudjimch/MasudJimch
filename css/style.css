@@ -82,7 +82,8 @@ header.site-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 28px;
+  gap: 12px;
+  padding: 16px 20px;
 }
 .brand {
   font-family: var(--font-display);
@@ -91,54 +92,29 @@ header.site-header {
   letter-spacing: 0.01em;
   text-decoration: none;
   color: var(--ink);
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
 }
 .brand span { color: var(--gold); }
 
-nav.main-nav ul {
-  list-style: none;
-  display: flex;
-  gap: 28px;
-  margin: 0;
-  padding: 0;
-}
-nav.main-nav a {
-  text-decoration: none;
-  font-size: 0.92rem;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-  position: relative;
-  padding-bottom: 4px;
-}
-nav.main-nav a:hover,
-nav.main-nav a:focus-visible {
-  color: var(--ink);
-}
-nav.main-nav a::after {
-  content: "";
-  position: absolute;
-  left: 0; right: 100%;
-  bottom: 0;
-  height: 2px;
-  background: var(--gold);
-  transition: right 0.25s ease;
-}
-nav.main-nav a:hover::after,
-nav.main-nav a:focus-visible::after { right: 0; }
-nav.main-nav a.active { color: var(--ink); }
-nav.main-nav a.active::after { right: 0; background: var(--gold); }
-
 .nav-toggle {
-  display: none;
+  flex-shrink: 0;
   background: none;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  padding: 8px 10px;
-  font-family: var(--font-mono);
+  padding: 8px 12px;
+  font-size: 1rem;
   cursor: pointer;
+  color: var(--ink);
 }
-.header-right { display: flex; align-items: center; gap: 10px; }
+.nav-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
 .lang-toggle {
+  flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: 0.8rem;
   background: none;
@@ -149,14 +125,92 @@ nav.main-nav a.active::after { right: 0; background: var(--gold); }
   color: var(--ink);
 }
 .lang-toggle:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Collapsible sidebar nav */
+.sidebar-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 8, 8, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 190;
+}
+.sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+
+nav.main-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 290px;
+  max-width: 84vw;
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+  box-shadow: 12px 0 34px rgba(0,0,0,0.18);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 200;
+  padding: 26px 22px;
+  overflow-y: auto;
+}
+nav.main-nav.open { transform: translateX(0); }
+
+.sidebar-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  cursor: pointer;
+  font-size: 1rem;
+  color: var(--ink);
+}
+.sidebar-close:hover { border-color: var(--gold); color: var(--gold); }
+
+.sidebar-title {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--sage);
+  margin: 4px 0 18px;
+}
+
+nav.main-nav ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+}
+nav.main-nav a {
+  display: block;
+  text-decoration: none;
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  padding: 13px 8px;
+  border-bottom: 1px solid var(--line);
+  transition: color 0.15s ease, padding-left 0.15s ease;
+}
+nav.main-nav a:hover,
+nav.main-nav a:focus-visible,
+nav.main-nav a.active {
+  color: var(--gold);
+  padding-left: 14px;
+}
+
 .hero-cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
 
-@media (max-width: 760px) {
-  nav.main-nav { display: none; width: 100%; }
-  nav.main-nav.open { display: block; }
-  nav.main-nav ul { flex-direction: column; gap: 4px; padding: 12px 0; }
-  .nav-row { flex-wrap: wrap; }
-  .nav-toggle { display: inline-block; }
+@media (min-width: 761px) {
+  nav.main-nav { padding-top: 60px; }
 }
 
 /* ===================================================================

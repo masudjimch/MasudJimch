@@ -44,10 +44,27 @@ function renderNav() {
     `Dr<span>.</span> ${SITE_CONTENT.site.name.replace(/^Dr\.?\s*/i, "")}`;
 
   const toggle = document.getElementById("nav-toggle");
+  const sidebar = document.getElementById("main-nav");
+  const overlay = document.getElementById("sidebar-overlay");
+  const closeBtn = document.getElementById("sidebar-close");
+
+  function openSidebar() {
+    sidebar.classList.add("open");
+    overlay.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeSidebar() {
+    sidebar.classList.remove("open");
+    overlay.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
   if (!toggle.dataset.wired) {
-    toggle.addEventListener("click", () => {
-      document.getElementById("main-nav").classList.toggle("open");
-    });
+    toggle.addEventListener("click", openSidebar);
+    overlay.addEventListener("click", closeSidebar);
+    closeBtn.addEventListener("click", closeSidebar);
+    sidebar.addEventListener("click", (e) => { if (e.target.closest("a")) closeSidebar(); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSidebar(); });
     toggle.dataset.wired = "1";
   }
 

@@ -18,16 +18,18 @@
 
 <header class="site-header">
   <div class="nav-row wrap">
+    <button class="nav-toggle" id="nav-toggle" aria-label="Open menu">☰</button>
     <a href="#home" class="brand" id="brand-link">Dr<span>.</span> Portfolio</a>
-    <div class="header-right">
-      <button class="lang-toggle" id="lang-toggle" type="button">বাং</button>
-      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle menu">☰ Menu</button>
-    </div>
-    <nav class="main-nav" id="main-nav">
-      <ul id="main-nav-list"></ul>
-    </nav>
+    <button class="lang-toggle" id="lang-toggle" type="button">বাং</button>
   </div>
 </header>
+
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+<nav class="main-nav" id="main-nav">
+  <button class="sidebar-close" id="sidebar-close" aria-label="Close menu">✕</button>
+  <p class="sidebar-title">Menu</p>
+  <ul id="main-nav-list"></ul>
+</nav>
 
 <main>
 
