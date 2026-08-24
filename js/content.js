@@ -86,17 +86,17 @@ const SITE_CONTENT = {
     },
     {
       "label": {
-        "en": "Apps",
-        "bn": "অ্যাপস"
-      },
-      "href": "#apps"
-    },
-    {
-      "label": {
         "en": "Journey",
         "bn": "যাত্রা"
       },
       "href": "#journey"
+    },
+    {
+      "label": {
+        "en": "Apps",
+        "bn": "অ্যাপস"
+      },
+      "href": "#apps"
     },
     {
       "label": {
@@ -111,6 +111,13 @@ const SITE_CONTENT = {
         "bn": "ব্লগ"
       },
       "href": "#blog"
+    },
+    {
+      "label": {
+        "en": "Academic documents",
+        "bn": "একাডেমিক ডকুমেন্ট"
+      },
+      "href": "#academic_docs"
     },
     {
       "label": {
