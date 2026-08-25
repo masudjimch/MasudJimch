@@ -5,14 +5,14 @@
 
 const SITE_CONTENT = {
   "site": {
-    "name": "Dr. Md. Moshiur Rahman",
+    "name": "Moshiur Masud",
     "initials": "MMR",
     "tagline": "Anatomist, Educator & Researcher",
     "footerNote": {
       "en": "Built with care. Updated regularly.",
       "bn": "যত্ন সহকারে তৈরি। নিয়মিত আপডেট হয়।"
     },
-    "theme": "neon-nights",
+    "theme": "teal-charcoal",
     "fontPreset": "theme-default",
     "sectionStyles": {
       "home": {
