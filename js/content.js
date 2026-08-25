@@ -12,7 +12,7 @@ const SITE_CONTENT = {
       "en": "Built with care. Updated regularly.",
       "bn": "যত্ন সহকারে তৈরি। নিয়মিত আপডেট হয়।"
     },
-    "theme": "navy-gold",
+    "theme": "neon-nights",
     "fontPreset": "theme-default",
     "sectionStyles": {
       "home": {
