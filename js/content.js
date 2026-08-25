@@ -580,7 +580,7 @@ const SITE_CONTENT = {
       }
     ],
     "phone": "+880 1914-128747",
-    "location": "House 319, Road 3, Phase 2, Shonadanga, Khulna-9100, Bangladesh",
+    "location": "Dhaka | Bangladesh",
     "links": [
       {
         "icon": "🔬",
