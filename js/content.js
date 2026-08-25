@@ -12,7 +12,7 @@ const SITE_CONTENT = {
       "en": "Built with care. Updated regularly.",
       "bn": "যত্ন সহকারে তৈরি। নিয়মিত আপডেট হয়।"
     },
-    "theme": "teal-charcoal",
+    "theme": "neon-nights",
     "fontPreset": "theme-default",
     "sectionStyles": {
       "home": {
@@ -74,8 +74,7 @@ const SITE_CONTENT = {
       "blog": true,
       "gallery": true,
       "faq": true,
-      "contact": true,
-      "custom-1787669724047": true
+      "contact": true
     },
     "sectionOrder": [
       "about",
@@ -84,7 +83,6 @@ const SITE_CONTENT = {
       "journey",
       "testimonials",
       "blog",
-      "custom-1787669724047",
       "gallery",
       "faq",
       "contact"
@@ -604,25 +602,5 @@ const SITE_CONTENT = {
       }
     ]
   },
-  "customSections": [
-    {
-      "id": "custom-1787669724047",
-      "title": {
-        "en": "Documents ",
-        "bn": "ডকুমেন্টস"
-      },
-      "subheading": {
-        "en": "",
-        "bn": ""
-      },
-      "body": {
-        "en": "Just to explore.......",
-        "bn": " এমনিতেই একটু দেখার জন্য"
-      },
-      "eyebrow": {
-        "en": "",
-        "bn": ""
-      }
-    }
-  ]
+  "customSections": []
 };
