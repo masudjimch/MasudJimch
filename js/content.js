@@ -84,10 +84,10 @@ const SITE_CONTENT = {
       "journey",
       "testimonials",
       "blog",
+      "custom-1787669724047",
       "gallery",
       "faq",
-      "contact",
-      "custom-1787669724047"
+      "contact"
     ],
     "feedbackFormEndpoint": ""
   },
