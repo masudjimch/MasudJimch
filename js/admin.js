@@ -13,6 +13,7 @@ data.journey = data.journey || { heading: "Journey", subheading: "Milestones, aw
 data.testimonials = data.testimonials || { heading: "Testimonials", subheading: "What patients and colleagues say", items: [] };
 data.blog = data.blog || { heading: "Blog", subheading: "Notes and articles", items: [] };
 data.faq = data.faq || { heading: "FAQ", subheading: "Common questions", items: [] };
+data.customSections = data.customSections || [];
 
 function field({ label, value, onChange, textarea = false, span2 = false }) {
   const wrap = document.createElement("div");
@@ -231,11 +232,18 @@ const SECTION_LABELS = {
   gallery: "Gallery", faq: "FAQ", contact: "Contact"
 };
 
+function getSectionLabel(id) {
+  if (SECTION_LABELS[id]) return SECTION_LABELS[id];
+  const cs = (data.customSections || []).find(c => c.id === id);
+  if (cs) return (cs.title && (cs.title.en || cs.title.bn)) || "Untitled section";
+  return id;
+}
+
 function renderSectionStyles() {
   const wrap = clear("section-styles-list");
   data.site.sectionStyles = data.site.sectionStyles || {};
 
-  SECTION_IDS.forEach(id => {
+  getAllSectionIds(data.customSections).forEach(id => {
     data.site.sectionStyles[id] = data.site.sectionStyles[id] || { font: "theme-default", color: "theme-default" };
     const conf = data.site.sectionStyles[id];
 
@@ -244,7 +252,7 @@ function renderSectionStyles() {
 
     const label = document.createElement("div");
     label.className = "section-style-label";
-    label.textContent = SECTION_LABELS[id] || id;
+    label.textContent = getSectionLabel(id);
     row.appendChild(label);
 
     const fontSelect = document.createElement("select");
@@ -410,7 +418,7 @@ function renderSite() {
 /* ---------------- SECTIONS: show/hide + reorder ---------------- */
 function renderSectionsManager() {
   data.site.sectionVisibility = data.site.sectionVisibility || {};
-  data.site.sectionOrder = getSectionOrder(data.site.sectionOrder).filter(id => id !== "home");
+  data.site.sectionOrder = getSectionOrder(data.site.sectionOrder, data.customSections).filter(id => id !== "home");
 
   const list = clear("sections-manager-list");
   data.site.sectionOrder.forEach((id, i) => {
@@ -425,7 +433,13 @@ function renderSectionsManager() {
 
     const label = document.createElement("span");
     label.className = "section-manager-label";
-    label.textContent = SECTION_LABELS[id] || id;
+    label.textContent = getSectionLabel(id);
+    if (!SECTION_LABELS[id]) {
+      const tag = document.createElement("span");
+      tag.className = "section-manager-hint";
+      tag.textContent = " (custom)";
+      label.appendChild(tag);
+    }
     row.appendChild(label);
 
     row.appendChild(toggleSwitch({
@@ -436,6 +450,65 @@ function renderSectionsManager() {
     attachDrag(row, i, data.site.sectionOrder, renderSectionsManager);
     list.appendChild(row);
   });
+}
+
+/* ---------------- CUSTOM SECTIONS ---------------- */
+function renderCustomSectionsAdmin() {
+  data.customSections = data.customSections || [];
+  const wrap = clear("custom-sections-list");
+
+  data.customSections.forEach((cs, i) => {
+    cs.title = cs.title || { en: "", bn: "" };
+    cs.subheading = cs.subheading || { en: "", bn: "" };
+    cs.body = cs.body || { en: "", bn: "" };
+    cs.eyebrow = cs.eyebrow || { en: "", bn: "" };
+
+    const row = document.createElement("div");
+    row.className = "repeat-item has-toolbar";
+
+    const toolbar = document.createElement("div");
+    toolbar.className = "item-toolbar";
+    const handle = document.createElement("span");
+    handle.className = "drag-handle";
+    handle.textContent = "⠿";
+    toolbar.appendChild(handle);
+    toolbar.appendChild(removeBtn(() => {
+      const removedId = cs.id;
+      data.customSections.splice(i, 1);
+      data.site.sectionOrder = (data.site.sectionOrder || []).filter(id => id !== removedId);
+      if (data.site.sectionVisibility) delete data.site.sectionVisibility[removedId];
+      renderCustomSectionsAdmin();
+      renderSectionsManager();
+      renderSectionStyles();
+    }));
+    row.appendChild(toolbar);
+
+    const grid = document.createElement("div");
+    grid.className = "field-grid";
+    grid.appendChild(bilingualField("Eyebrow label (optional, small text above title, e.g. \"Awards\")", cs, "eyebrow"));
+    const titleField = bilingualField("Section name / title", cs, "title");
+    titleField.querySelectorAll("input, textarea").forEach(el => {
+      el.addEventListener("input", () => renderSectionsManager());
+    });
+    grid.appendChild(titleField);
+    grid.appendChild(bilingualField("Subheading (optional)", cs, "subheading"));
+    grid.appendChild(bilingualField("Content (paragraphs — leave a blank line between paragraphs)", cs, "body", { span2: true, textarea: true }));
+    row.appendChild(grid);
+
+    attachDrag(row, i, data.customSections, renderCustomSectionsAdmin);
+    wrap.appendChild(row);
+  });
+
+  document.getElementById("add-custom-section-btn").onclick = () => {
+    const id = "custom-" + Date.now();
+    data.customSections.push({
+      id, title: { en: "New Section", bn: "নতুন সেকশন" },
+      subheading: { en: "", bn: "" }, body: { en: "", bn: "" }
+    });
+    renderCustomSectionsAdmin();
+    renderSectionsManager();
+    renderSectionStyles();
+  };
 }
 
 /* ---------------- HERO ---------------- */
@@ -1043,6 +1116,7 @@ renderThemeSwatches();
 renderFontSwatches();
 renderSectionStyles();
 renderSite();
+renderCustomSectionsAdmin();
 renderSectionsManager();
 renderHero();
 renderCv();

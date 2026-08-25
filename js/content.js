@@ -230,5 +230,10 @@ const SITE_CONTENT = {
       { icon: "📚", label: "Academia.edu", url: "https://bsmmu.academia.edu/moshiurmasud" },
       { icon: "🔗", label: "ScienceOpen", url: "https://www.scienceopen.com/user/f012a09b-d7a6-4cec-a5f2-7368695bb593" }
     ]
-  }
+  },
+
+  // Add brand-new sections (with their own name & content) from admin.html →
+  // "Custom sections". Each one automatically gets a menu link and shows up
+  // in the "Sections — show, hide & reorder" list.
+  customSections: []
 };

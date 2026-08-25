@@ -911,6 +911,11 @@ section { padding: 84px 0; }
 }
 .section-head p { color: var(--ink-soft); margin: 0; }
 
+/* ---- Custom (admin-created) sections ---- */
+.custom-section-body { max-width: 68ch; color: var(--ink); }
+.custom-section-body p { margin: 0 0 16px; line-height: 1.7; color: var(--ink); }
+.custom-section-body p:last-child { margin-bottom: 0; }
+
 /* ===================================================================
    ABOUT
    =================================================================== */

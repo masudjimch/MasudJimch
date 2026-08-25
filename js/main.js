@@ -37,12 +37,18 @@ function ecgDivider() {
 function renderNav() {
   const nav = document.getElementById("main-nav-list");
   const vis = SITE_CONTENT.site.sectionVisibility || {};
-  nav.innerHTML = SITE_CONTENT.nav.filter(item => {
+  const builtinItems = SITE_CONTENT.nav.filter(item => {
     const id = item.href.replace("#", "");
     return vis[id] !== false;
-  }).map(item =>
-    `<li><a href="${item.href}">${t(item.label)}</a></li>`
-  ).join("");
+  }).map(item => `<li><a href="${item.href}">${t(item.label)}</a></li>`);
+
+  const order = getSectionOrder(SITE_CONTENT.site.sectionOrder, SITE_CONTENT.customSections);
+  const customItems = (SITE_CONTENT.customSections || [])
+    .filter(cs => vis[cs.id] !== false)
+    .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
+    .map(cs => `<li><a href="#${cs.id}">${t(cs.title) || ""}</a></li>`);
+
+  nav.innerHTML = builtinItems.concat(customItems).join("");
 
   document.getElementById("brand-link").innerHTML =
     `${SITE_CONTENT.site.name}<span>.</span>`;
@@ -755,10 +761,48 @@ function setupModalClose() {
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeBlogModal(); });
 }
 
+/* ---------------- CUSTOM SECTIONS ---------------- */
+function renderCustomSections() {
+  const main = document.querySelector("main");
+  if (!main) return;
+  const list = SITE_CONTENT.customSections || [];
+  const currentIds = new Set(list.map(cs => cs.id));
+
+  // Remove any custom sections that no longer exist in content
+  main.querySelectorAll("section.custom-section").forEach(el => {
+    if (!currentIds.has(el.id)) el.remove();
+  });
+
+  list.forEach(cs => {
+    let section = document.getElementById(cs.id);
+    if (!section) {
+      section = document.createElement("section");
+      section.id = cs.id;
+      section.className = "custom-section";
+      main.appendChild(section);
+    }
+    const bodyText = t(cs.body) || "";
+    const paragraphs = bodyText.split(/\n\s*\n/).filter(p => p.trim())
+      .map(p => `<p>${p.trim().replace(/\n/g, "<br>")}</p>`).join("");
+    const eyebrow = t(cs.eyebrow);
+    const subheading = t(cs.subheading);
+    section.innerHTML = `
+      <div class="wrap">
+        <div class="section-head">
+          ${eyebrow ? `<p class="section-eyebrow">${eyebrow}</p>` : ""}
+          <h2>${t(cs.title) || ""}</h2>
+          ${subheading ? `<p>${subheading}</p>` : ""}
+        </div>
+        <div class="custom-section-body">${paragraphs}</div>
+      </div>
+    `;
+  });
+}
+
 function applySectionLayout() {
   const main = document.querySelector("main");
   if (!main) return;
-  const order = getSectionOrder(SITE_CONTENT.site.sectionOrder);
+  const order = getSectionOrder(SITE_CONTENT.site.sectionOrder, SITE_CONTENT.customSections);
   const vis = SITE_CONTENT.site.sectionVisibility || {};
   document.querySelectorAll(".ecg-slot").forEach(el => el.remove());
   let lastVisible = null;
@@ -791,12 +835,13 @@ function renderAll() {
   renderGallery();
   renderFaq();
   renderContact();
+  renderCustomSections();
   renderFooter();
   renderWhatsapp();
   applySectionLayout();
   injectDividers();
   numberSections();
-  applySectionStyles(SITE_CONTENT.site.sectionStyles);
+  applySectionStyles(SITE_CONTENT.site.sectionStyles, SITE_CONTENT.customSections);
   setupStagger();
   setupTiltCards();
   setupScrollReveal();

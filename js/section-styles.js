@@ -41,12 +41,18 @@ const ACCENT_COLORS = [
   { id: "ivory", name: "Ivory (for dark sections)", hex: "#F2EFE6" }
 ];
 
-const SECTION_IDS = ["home", "about", "publications", "apps", "journey", "testimonials", "blog", "gallery", "faq", "contact"];
+const BUILTIN_SECTION_IDS = ["home", "about", "publications", "apps", "journey", "testimonials", "blog", "gallery", "faq", "contact"];
+
+// Returns builtin section ids plus any custom section ids (in their stored array order).
+function getAllSectionIds(customSections) {
+  const customIds = (customSections || []).map(cs => cs.id);
+  return [...BUILTIN_SECTION_IDS, ...customIds];
+}
 
 // Normalizes a stored section order (array of ids, excluding "home") into a
 // full, valid order with "home" always first and any missing/new ids appended.
-function getSectionOrder(order) {
-  const others = SECTION_IDS.filter(id => id !== "home");
+function getSectionOrder(order, customSections) {
+  const others = getAllSectionIds(customSections).filter(id => id !== "home");
   const base = (order && order.length) ? order.filter(id => others.includes(id)) : others.slice();
   others.forEach(id => { if (!base.includes(id)) base.push(id); });
   return ["home", ...base];
@@ -57,9 +63,9 @@ function getAccentColor(id) { return ACCENT_COLORS.find(c => c.id === id) || ACC
 
 // Applies each section's chosen heading font/color as scoped CSS variables
 // directly on that <section> element, so it only affects that section.
-function applySectionStyles(sectionStyles) {
+function applySectionStyles(sectionStyles, customSections) {
   if (!sectionStyles) return;
-  SECTION_IDS.forEach(id => {
+  getAllSectionIds(customSections).forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     const conf = sectionStyles[id] || {};
