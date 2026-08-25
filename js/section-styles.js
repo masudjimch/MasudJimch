@@ -43,6 +43,15 @@ const ACCENT_COLORS = [
 
 const SECTION_IDS = ["home", "about", "publications", "apps", "journey", "testimonials", "blog", "gallery", "faq", "contact"];
 
+// Normalizes a stored section order (array of ids, excluding "home") into a
+// full, valid order with "home" always first and any missing/new ids appended.
+function getSectionOrder(order) {
+  const others = SECTION_IDS.filter(id => id !== "home");
+  const base = (order && order.length) ? order.filter(id => others.includes(id)) : others.slice();
+  others.forEach(id => { if (!base.includes(id)) base.push(id); });
+  return ["home", ...base];
+}
+
 function getHeadingFont(id) { return HEADING_FONTS.find(f => f.id === id) || HEADING_FONTS[0]; }
 function getAccentColor(id) { return ACCENT_COLORS.find(c => c.id === id) || ACCENT_COLORS[0]; }
 

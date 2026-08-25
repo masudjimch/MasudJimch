@@ -36,12 +36,16 @@ function ecgDivider() {
 
 function renderNav() {
   const nav = document.getElementById("main-nav-list");
-  nav.innerHTML = SITE_CONTENT.nav.map(item =>
+  const vis = SITE_CONTENT.site.sectionVisibility || {};
+  nav.innerHTML = SITE_CONTENT.nav.filter(item => {
+    const id = item.href.replace("#", "");
+    return vis[id] !== false;
+  }).map(item =>
     `<li><a href="${item.href}">${t(item.label)}</a></li>`
   ).join("");
 
   document.getElementById("brand-link").innerHTML =
-    `Dr<span>.</span> ${SITE_CONTENT.site.name.replace(/^Dr\.?\s*/i, "")}`;
+    `${SITE_CONTENT.site.name}<span>.</span>`;
 
   const toggle = document.getElementById("nav-toggle");
   const sidebar = document.getElementById("main-nav");
@@ -103,16 +107,6 @@ function renderHero() {
     `).join("");
   }
 
-  const cvBtn = document.getElementById("hero-cv-btn");
-  if (cvBtn) {
-    if (SITE_CONTENT.cv && SITE_CONTENT.cv.dataUrl) {
-      cvBtn.style.display = "";
-      cvBtn.href = SITE_CONTENT.cv.dataUrl;
-      cvBtn.download = SITE_CONTENT.cv.name || "CV.pdf";
-    } else {
-      cvBtn.style.display = "none";
-    }
-  }
 }
 
 function renderAbout() {
@@ -133,6 +127,17 @@ function renderAbout() {
       <div class="value">${s.value}</div>
       <div class="label">${s.label}</div>
     </div>`).join("");
+
+  const cvBtn = document.getElementById("about-cv-btn");
+  if (cvBtn) {
+    if (SITE_CONTENT.cv && SITE_CONTENT.cv.dataUrl) {
+      cvBtn.style.display = "";
+      cvBtn.href = SITE_CONTENT.cv.dataUrl;
+      cvBtn.download = SITE_CONTENT.cv.name || "CV.pdf";
+    } else {
+      cvBtn.style.display = "none";
+    }
+  }
 }
 
 function renderTabbedSection({ data, tabsElId, panelsElId, itemRenderer }) {
@@ -238,6 +243,17 @@ function renderPublications() {
 }
 
 /* ---------------- JOURNEY ---------------- */
+const JOURNEY_PALETTE = ["#E4C486", "#7FD9C4", "#F2A65A", "#8FB8E0", "#E88FA6", "#B79CED"];
+function journeyCategoryColor(cat) {
+  if (!cat) return JOURNEY_PALETTE[0];
+  let hash = 0;
+  for (let i = 0; i < cat.length; i++) hash = cat.charCodeAt(i) + ((hash << 5) - hash);
+  return JOURNEY_PALETTE[Math.abs(hash) % JOURNEY_PALETTE.length];
+}
+
+const journeyState = { view: "timeline", activeIdx: 0 };
+let journeyWaveAnimId = null;
+
 function renderJourney() {
   const j = SITE_CONTENT.journey;
   const section = document.getElementById("journey");
@@ -246,9 +262,11 @@ function renderJourney() {
     return;
   }
   if (section) section.style.display = "";
+  section.dataset.view = journeyState.view;
   document.getElementById("journey-heading").textContent = t(j.heading);
   document.getElementById("journey-subheading").textContent = t(j.subheading);
 
+  // List view (unchanged, chronological cards)
   document.getElementById("journey-list").innerHTML = j.items.map(item => `
     <div class="journey-item">
       <div class="journey-year">${item.year || ""}</div>
@@ -258,21 +276,110 @@ function renderJourney() {
       </div>
     </div>
   `).join("");
+
+  // Timeline view (animated wave + glowing nodes)
+  if (journeyState.activeIdx >= j.items.length) journeyState.activeIdx = 0;
+  const track = document.getElementById("journey-track");
+  track.innerHTML = j.items.map((item, i) => {
+    const color = journeyCategoryColor(item.category);
+    return `
+    <button type="button" class="journey-node${item.highlight ? " is-highlight" : ""}${i === journeyState.activeIdx ? " active" : ""}" style="--node-color:${color}" data-idx="${i}">
+      <span class="journey-node-year">${item.year || ""}</span>
+      <span class="journey-node-dot"></span>
+      <span class="journey-node-title">${item.title || ""}</span>
+    </button>`;
+  }).join("");
+
+  track.querySelectorAll(".journey-node").forEach(node => {
+    node.onclick = () => {
+      journeyState.activeIdx = parseInt(node.dataset.idx, 10);
+      renderJourneyDetail();
+      track.querySelectorAll(".journey-node").forEach(n => n.classList.remove("active"));
+      node.classList.add("active");
+      node.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    };
+  });
+  renderJourneyDetail();
+
+  document.getElementById("journey-view-timeline").classList.toggle("active", journeyState.view === "timeline");
+  document.getElementById("journey-view-list").classList.toggle("active", journeyState.view === "list");
+  document.getElementById("journey-view-timeline").onclick = () => { journeyState.view = "timeline"; renderJourney(); };
+  document.getElementById("journey-view-list").onclick = () => { journeyState.view = "list"; renderJourney(); };
+
+  document.getElementById("journey-scroll-left").onclick = () => track.scrollBy({ left: -260, behavior: "smooth" });
+  document.getElementById("journey-scroll-right").onclick = () => track.scrollBy({ left: 260, behavior: "smooth" });
+
+  initJourneyWave();
+}
+
+function renderJourneyDetail() {
+  const j = SITE_CONTENT.journey;
+  const item = j.items[journeyState.activeIdx];
+  const detail = document.getElementById("journey-detail");
+  if (!item || !detail) return;
+  const color = journeyCategoryColor(item.category);
+  detail.innerHTML = `
+    <p class="journey-detail-year">${item.year || ""}</p>
+    <h3 class="journey-detail-title">${item.title || ""}</h3>
+    <p class="journey-detail-desc">${item.description || ""}</p>
+    ${item.category ? `<span class="journey-detail-cat" style="background:${color}22;color:${color};">${item.category}</span>` : ""}
+  `;
+}
+
+function initJourneyWave() {
+  const canvas = document.getElementById("journey-wave");
+  if (!canvas || journeyState.view !== "timeline") return;
+  const ctx = canvas.getContext("2d");
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  let w, h, t0 = 0;
+
+  const resize = () => {
+    const rect = canvas.parentElement.getBoundingClientRect();
+    w = canvas.width = Math.max(1, rect.width * dpr);
+    h = canvas.height = Math.max(1, rect.height * dpr);
+    canvas.style.width = rect.width + "px";
+    canvas.style.height = rect.height + "px";
+  };
+  resize();
+  if (!canvas.dataset.resizeWired) {
+    canvas.dataset.resizeWired = "1";
+    window.addEventListener("resize", () => resize());
+  }
+
+  const rows = 6;
+  function draw() {
+    ctx.clearRect(0, 0, w, h);
+    t0 += 0.006;
+    for (let r = 0; r < rows; r++) {
+      const baseY = h * (0.18 + r * 0.145);
+      const amp = h * 0.045 * (1 - r * 0.08);
+      const spacing = 20 * dpr;
+      const alpha = 0.16 - r * 0.018;
+      ctx.fillStyle = `rgba(228, 196, 134, ${Math.max(alpha, 0.03)})`;
+      for (let x = -spacing; x < w + spacing; x += spacing) {
+        const y = baseY + Math.sin(x * 0.012 + t0 * (1 + r * 0.18) + r * 1.4) * amp;
+        const size = 1.3 * dpr;
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    journeyWaveAnimId = requestAnimationFrame(draw);
+  }
+  if (journeyWaveAnimId) cancelAnimationFrame(journeyWaveAnimId);
+  draw();
 }
 
 /* ---------------- TESTIMONIALS ---------------- */
 function renderTestimonials() {
   const te = SITE_CONTENT.testimonials;
   const section = document.getElementById("testimonials");
-  if (!te || !te.items || !te.items.length) {
-    if (section) section.style.display = "none";
-    return;
-  }
+  if (!te) { if (section) section.style.display = "none"; return; }
   if (section) section.style.display = "";
   document.getElementById("testimonials-heading").textContent = t(te.heading);
   document.getElementById("testimonials-subheading").textContent = t(te.subheading);
 
-  document.getElementById("testimonials-grid").innerHTML = te.items.map(item => `
+  document.getElementById("testimonials-grid").innerHTML = (te.items || []).map(item => `
     <div class="testimonial-card">
       <p class="testimonial-quote">"${item.quote || ""}"</p>
       <div class="testimonial-person">
@@ -284,6 +391,58 @@ function renderTestimonials() {
       </div>
     </div>
   `).join("");
+
+  const headingEl = document.getElementById("feedback-heading");
+  const noteEl = document.getElementById("feedback-note");
+  if (headingEl) headingEl.textContent = t(te.formHeading) || "Share your feedback";
+  if (noteEl) noteEl.textContent = t(te.formNote) || "";
+
+  setupFeedbackForm();
+}
+
+function setupFeedbackForm() {
+  const form = document.getElementById("feedback-form");
+  if (!form || form.dataset.wired === "1") return;
+  form.dataset.wired = "1";
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const status = document.getElementById("feedback-status");
+    const btn = document.getElementById("feedback-submit");
+    const name = document.getElementById("feedback-name").value.trim();
+    const role = document.getElementById("feedback-role").value.trim();
+    const message = document.getElementById("feedback-message").value.trim();
+    if (!name || !message) return;
+
+    const endpoint = SITE_CONTENT.site.feedbackFormEndpoint;
+    btn.disabled = true;
+    const originalLabel = btn.textContent;
+    btn.textContent = "Sending…";
+
+    try {
+      if (endpoint) {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ name, role, message })
+        });
+        if (!res.ok) throw new Error("bad status");
+        status.textContent = "Thank you — your feedback has been sent!";
+        form.reset();
+      } else {
+        // Fallback when no form endpoint is configured: open a pre-filled email.
+        const email = (SITE_CONTENT.contact && SITE_CONTENT.contact.emails && SITE_CONTENT.contact.emails[0]?.value) || "";
+        const subject = encodeURIComponent(`Website feedback from ${name}`);
+        const body = encodeURIComponent(`${message}\n\n— ${name}${role ? " (" + role + ")" : ""}`);
+        if (email) window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+        status.textContent = "Opening your email app to send this feedback…";
+      }
+    } catch (err) {
+      status.textContent = "Something went wrong — please try again, or use the contact section.";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalLabel;
+    }
+  });
 }
 
 /* ---------------- BLOG ---------------- */
@@ -510,7 +669,8 @@ function setupActiveNav() {
 
 function setupScrollReveal() {
   const targets = document.querySelectorAll(
-    ".section-head, .about-grid, .tabs, .tab-panel.active, .apps-grid, .contact-grid, .hero-photo-frame, .hero .wrap > div, .journey-list, .testimonials-grid, .blog-grid, .faq-list"
+    ".section-head, .about-grid, .tabs, .contact-grid, .hero-photo-frame, .hero .wrap > div, " +
+    ".app-card, .testimonial-card, .blog-card, .journey-item, .faq-item, .pub-item, .gallery-card, .stat, .floating-badge"
   );
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
@@ -522,8 +682,68 @@ function setupScrollReveal() {
   }, { threshold: 0.12 });
 
   targets.forEach(elx => {
-    elx.classList.add("reveal");
+    if (!elx.classList.contains("reveal-in")) elx.classList.add("reveal");
     observer.observe(elx);
+  });
+}
+
+function setupBackToTop() {
+  const btn = document.getElementById("back-to-top-float");
+  if (!btn) return;
+  const toggle = () => btn.classList.toggle("show", window.scrollY > 480);
+  toggle();
+  window.addEventListener("scroll", toggle, { passive: true });
+  btn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+}
+
+function setupHeaderShrink() {
+  const header = document.querySelector(".site-header");
+  if (!header) return;
+  const toggle = () => header.classList.toggle("scrolled", window.scrollY > 40);
+  toggle();
+  window.addEventListener("scroll", toggle, { passive: true });
+}
+
+function setupHeroParallax() {
+  const frame = document.querySelector(".hero-photo-frame");
+  const eyebrow = document.querySelector(".hero-eyebrow");
+  if (!frame) return;
+  const onScroll = () => {
+    const y = Math.min(window.scrollY, 600);
+    frame.style.transform = `translateY(${y * 0.08}px)`;
+    if (eyebrow) eyebrow.style.transform = `translateY(${y * 0.15}px)`;
+  };
+  onScroll();
+  window.addEventListener("scroll", onScroll, { passive: true });
+}
+
+function setupStagger() {
+  document.querySelectorAll(
+    ".apps-grid, .testimonials-grid, .blog-grid, .journey-list, .faq-list, .gallery-grid, .pub-list, .hero-badges"
+  ).forEach(group => {
+    Array.from(group.children).forEach((child, i) => {
+      child.style.setProperty("--i", i);
+    });
+  });
+}
+
+function setupTiltCards() {
+  const selectors = ".app-card, .testimonial-card, .blog-card, .gallery-card";
+  document.querySelectorAll(selectors).forEach(card => {
+    card.classList.add("tilt-card");
+    card.addEventListener("mousemove", (e) => {
+      const rect = card.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      card.style.setProperty("--tilt-x", `${(-py * 8).toFixed(2)}deg`);
+      card.style.setProperty("--tilt-y", `${(px * 8).toFixed(2)}deg`);
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.setProperty("--tilt-x", "0deg");
+      card.style.setProperty("--tilt-y", "0deg");
+    });
   });
 }
 
@@ -533,6 +753,30 @@ function setupModalClose() {
   document.getElementById("blog-modal-close").addEventListener("click", closeBlogModal);
   modal.addEventListener("click", (e) => { if (e.target === modal) closeBlogModal(); });
   document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeBlogModal(); });
+}
+
+function applySectionLayout() {
+  const main = document.querySelector("main");
+  if (!main) return;
+  const order = getSectionOrder(SITE_CONTENT.site.sectionOrder);
+  const vis = SITE_CONTENT.site.sectionVisibility || {};
+  document.querySelectorAll(".ecg-slot").forEach(el => el.remove());
+  let lastVisible = null;
+  order.forEach(id => {
+    const section = document.getElementById(id);
+    if (!section) return;
+    const emptyHidden = section.style.display === "none";
+    const visible = id === "home" || (vis[id] !== false && !emptyHidden);
+    if (!visible) { section.style.display = "none"; return; }
+    section.style.display = "";
+    main.appendChild(section);
+    if (lastVisible) {
+      const slot = document.createElement("div");
+      slot.className = "ecg-slot";
+      main.insertBefore(slot, section);
+    }
+    lastVisible = section;
+  });
 }
 
 function renderAll() {
@@ -549,9 +793,13 @@ function renderAll() {
   renderContact();
   renderFooter();
   renderWhatsapp();
+  applySectionLayout();
   injectDividers();
   numberSections();
   applySectionStyles(SITE_CONTENT.site.sectionStyles);
+  setupStagger();
+  setupTiltCards();
+  setupScrollReveal();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -560,6 +808,8 @@ document.addEventListener("DOMContentLoaded", () => {
   injectAnalytics();
   renderAll();
   setupActiveNav();
-  setupScrollReveal();
   setupModalClose();
+  setupBackToTop();
+  setupHeaderShrink();
+  setupHeroParallax();
 });

@@ -46,7 +46,6 @@
         <p class="tagline" id="hero-tagline"></p>
         <div class="hero-cta-row">
           <a class="btn btn-gold" id="hero-cta" href="#contact"></a>
-          <a class="btn btn-outline" id="hero-cv-btn" href="#" download style="display:none;">📄 Download CV</a>
         </div>
       </div>
       <div class="hero-photo-frame">
@@ -70,6 +69,7 @@
           <div class="about-text" id="about-text"></div>
           <ul class="credentials" id="about-credentials"></ul>
           <div class="stats-row" id="about-stats"></div>
+          <a class="btn btn-outline about-cv-btn" id="about-cv-btn" href="#" download style="display:none;">📄 Download CV</a>
         </div>
       </div>
     </div>
@@ -104,13 +104,30 @@
   <div class="ecg-slot"></div>
 
   <!-- JOURNEY -->
-  <section id="journey">
+  <section id="journey" data-view="timeline">
     <div class="wrap">
-      <div class="section-head">
-        <p class="section-eyebrow">Milestones</p>
-        <h2 id="journey-heading"></h2>
-        <p id="journey-subheading"></p>
+      <div class="section-head journey-head">
+        <div>
+          <p class="section-eyebrow">Milestones</p>
+          <h2 id="journey-heading"></h2>
+          <p id="journey-subheading"></p>
+        </div>
+        <div class="journey-view-toggle" role="group" aria-label="Journey view">
+          <button type="button" class="journey-view-btn" data-view="timeline" id="journey-view-timeline">Timeline</button>
+          <button type="button" class="journey-view-btn" data-view="list" id="journey-view-list">List</button>
+        </div>
       </div>
+
+      <div class="journey-timeline-wrap" id="journey-timeline-wrap">
+        <canvas class="journey-wave" id="journey-wave"></canvas>
+        <div class="journey-track" id="journey-track"></div>
+      </div>
+      <div class="journey-scroll-btns">
+        <button type="button" class="journey-scroll-btn" id="journey-scroll-left" aria-label="Scroll left">‹</button>
+        <button type="button" class="journey-scroll-btn" id="journey-scroll-right" aria-label="Scroll right">›</button>
+      </div>
+      <div class="journey-detail" id="journey-detail"></div>
+
       <div class="journey-list" id="journey-list"></div>
     </div>
   </section>
@@ -125,6 +142,20 @@
         <p id="testimonials-subheading"></p>
       </div>
       <div class="testimonials-grid" id="testimonials-grid"></div>
+
+      <div class="feedback-box" id="feedback-box">
+        <h3 id="feedback-heading"></h3>
+        <p id="feedback-note"></p>
+        <form id="feedback-form" class="feedback-form">
+          <div class="field-row">
+            <input type="text" name="name" id="feedback-name" placeholder="Your name" required>
+            <input type="text" name="role" id="feedback-role" placeholder="Your role (e.g. Student, Colleague)">
+          </div>
+          <textarea name="message" id="feedback-message" placeholder="Your feedback or comment…" required rows="4"></textarea>
+          <button type="submit" class="btn btn-gold" id="feedback-submit">Send feedback</button>
+          <p class="feedback-status" id="feedback-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
     </div>
   </section>
   <div class="ecg-slot"></div>
@@ -188,7 +219,6 @@
 <footer class="site-footer">
   <div class="wrap footer-row">
     <span id="footer-note"></span>
-    <a href="#home" class="back-to-top">Back to top ↑</a>
   </div>
 </footer>
 
@@ -205,6 +235,9 @@
 
 <!-- WHATSAPP FLOATING BUTTON -->
 <a class="whatsapp-float" id="whatsapp-float" href="#" target="_blank" rel="noopener" style="display:none;" aria-label="Chat on WhatsApp">💬</a>
+
+<!-- BACK TO TOP FLOATING BUTTON -->
+<button class="back-to-top-float" id="back-to-top-float" type="button" aria-label="Back to top">↑</button>
 
 <script src="js/main.js"></script>
 </body>

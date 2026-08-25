@@ -28,6 +28,34 @@ function field({ label, value, onChange, textarea = false, span2 = false }) {
   return wrap;
 }
 
+function checkboxField({ label, checked, onChange }) {
+  const wrap = document.createElement("label");
+  wrap.className = "checkbox-field";
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = !!checked;
+  input.addEventListener("change", () => onChange(input.checked));
+  const span = document.createElement("span");
+  span.textContent = label;
+  wrap.appendChild(input);
+  wrap.appendChild(span);
+  return wrap;
+}
+
+function toggleSwitch({ checked, onChange }) {
+  const label = document.createElement("label");
+  label.className = "toggle-switch";
+  const input = document.createElement("input");
+  input.type = "checkbox";
+  input.checked = !!checked;
+  input.addEventListener("change", () => onChange(input.checked));
+  const slider = document.createElement("span");
+  slider.className = "toggle-slider";
+  label.appendChild(input);
+  label.appendChild(slider);
+  return label;
+}
+
 function removeBtn(onClick) {
   const btn = document.createElement("button");
   btn.className = "remove-btn";
@@ -376,6 +404,38 @@ function renderSite() {
   s.appendChild(field({ label: "Google Analytics ID (e.g. G-XXXXXXX, leave blank to disable)", value: data.site.gaId, onChange: v => data.site.gaId = v }));
   s.appendChild(field({ label: "SEO description (shown in Google/social previews)", value: data.site.seoDescription, textarea: true, span2: true, onChange: v => data.site.seoDescription = v }));
   s.appendChild(field({ label: "Social preview image path (images/yourfile.jpg)", value: data.site.socialImage, span2: true, onChange: v => data.site.socialImage = v }));
+  s.appendChild(field({ label: "Feedback form endpoint (optional — from Formspree.io or similar; leave blank to use email instead)", value: data.site.feedbackFormEndpoint, span2: true, onChange: v => data.site.feedbackFormEndpoint = v }));
+}
+
+/* ---------------- SECTIONS: show/hide + reorder ---------------- */
+function renderSectionsManager() {
+  data.site.sectionVisibility = data.site.sectionVisibility || {};
+  data.site.sectionOrder = getSectionOrder(data.site.sectionOrder).filter(id => id !== "home");
+
+  const list = clear("sections-manager-list");
+  data.site.sectionOrder.forEach((id, i) => {
+    if (data.site.sectionVisibility[id] === undefined) data.site.sectionVisibility[id] = true;
+    const row = document.createElement("div");
+    row.className = "section-manager-row";
+
+    const handle = document.createElement("span");
+    handle.className = "drag-handle";
+    handle.textContent = "⠿";
+    row.appendChild(handle);
+
+    const label = document.createElement("span");
+    label.className = "section-manager-label";
+    label.textContent = SECTION_LABELS[id] || id;
+    row.appendChild(label);
+
+    row.appendChild(toggleSwitch({
+      checked: data.site.sectionVisibility[id],
+      onChange: v => { data.site.sectionVisibility[id] = v; }
+    }));
+
+    attachDrag(row, i, data.site.sectionOrder, renderSectionsManager);
+    list.appendChild(row);
+  });
 }
 
 /* ---------------- HERO ---------------- */
@@ -671,8 +731,10 @@ function renderJourney() {
     grid.className = "field-grid";
     grid.appendChild(field({ label: "Year", value: item.year, onChange: v => item.year = v }));
     grid.appendChild(field({ label: "Title", value: item.title, onChange: v => item.title = v }));
+    grid.appendChild(field({ label: "Category (e.g. Career, Education, Award) — controls the timeline dot color", value: item.category, onChange: v => item.category = v }));
     grid.appendChild(field({ label: "Description", value: item.description, span2: true, textarea: true, onChange: v => item.description = v }));
     row.appendChild(grid);
+    row.appendChild(checkboxField({ label: "Highlight (larger, brighter dot on the timeline)", checked: item.highlight, onChange: v => item.highlight = v }));
     row.appendChild(removeBtn(() => { j.items.splice(i, 1); renderJourney(); }));
     attachReorder(row, j.items, i, renderJourney);
     list.appendChild(row);
@@ -718,6 +780,8 @@ function renderTestimonials() {
   const te = data.testimonials;
   c.appendChild(bilingualField("Section heading", te, "heading"));
   c.appendChild(bilingualField("Subheading", te, "subheading", { span2: true }));
+  c.appendChild(bilingualField("Feedback form heading", te, "formHeading"));
+  c.appendChild(bilingualField("Feedback form note", te, "formNote", { span2: true, textarea: true }));
 
   const list = clear("testimonials-list-admin");
   te.items.forEach((item, i) => {
@@ -894,7 +958,7 @@ document.addEventListener("click", (e) => {
   if (type === "contact-email") { data.contact.emails = data.contact.emails || []; data.contact.emails.push({ icon: "📧", label: "Email", value: "" }); renderContact(); }
   if (type === "contact-link") { data.contact.links.push({ icon: "🔗", label: "New link", url: "https://" }); renderContact(); }
   if (type === "journey-item") {
-    data.journey.items.push({ year: "2025", title: "New milestone", description: "" });
+    data.journey.items.push({ year: "2025", title: "New milestone", description: "", category: "Career", highlight: false });
     renderJourney();
   }
   if (type === "testimonial") {
@@ -979,6 +1043,7 @@ renderThemeSwatches();
 renderFontSwatches();
 renderSectionStyles();
 renderSite();
+renderSectionsManager();
 renderHero();
 renderCv();
 renderAbout();
