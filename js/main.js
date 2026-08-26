@@ -337,7 +337,7 @@ function initJourneyWave() {
   if (!canvas || journeyState.view !== "timeline") return;
   const ctx = canvas.getContext("2d");
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  let w, h, t0 = 0;
+  let w, h;
 
   const resize = () => {
     const rect = canvas.parentElement.getBoundingClientRect();
@@ -353,20 +353,25 @@ function initJourneyWave() {
   }
 
   const rows = 6;
+  let flow = 0; // accumulating horizontal drift — this is what makes the wave visibly flow
   function draw() {
     ctx.clearRect(0, 0, w, h);
-    t0 += 0.006;
+    flow += 0.9 * dpr;
     for (let r = 0; r < rows; r++) {
-      const baseY = h * (0.18 + r * 0.145);
-      const amp = h * 0.045 * (1 - r * 0.08);
+      const baseY = h * (0.16 + r * 0.15);
+      const amp = h * 0.05 * (1 - r * 0.07);
       const spacing = 20 * dpr;
-      const alpha = 0.16 - r * 0.018;
-      ctx.fillStyle = `rgba(228, 196, 134, ${Math.max(alpha, 0.03)})`;
-      for (let x = -spacing; x < w + spacing; x += spacing) {
-        const y = baseY + Math.sin(x * 0.012 + t0 * (1 + r * 0.18) + r * 1.4) * amp;
-        const size = 1.3 * dpr;
+      const alpha = 0.30 - r * 0.028;
+      const rowFlow = flow * (0.5 + r * 0.14); // each row drifts at its own speed = parallax
+      const wobble = flow * 0.012 * (1 + r * 0.12);
+      ctx.fillStyle = `rgba(228, 196, 134, ${Math.max(alpha, 0.04)})`;
+      for (let x = -spacing * 2; x < w + spacing * 2; x += spacing) {
+        // wrap x with the drift so dots continuously stream leftward, looping seamlessly
+        const wrapped = ((x - rowFlow) % (w + spacing * 4) + (w + spacing * 4)) % (w + spacing * 4) - spacing * 2;
+        const y = baseY + Math.sin(wrapped * 0.014 + wobble + r * 1.4) * amp;
+        const size = (r === 0 ? 1.7 : 1.3) * dpr;
         ctx.beginPath();
-        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.arc(wrapped, y, size, 0, Math.PI * 2);
         ctx.fill();
       }
     }
