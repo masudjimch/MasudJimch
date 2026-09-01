@@ -12,7 +12,7 @@ const SITE_CONTENT = {
       "en": "Built with care. Updated regularly.",
       "bn": "যত্ন সহকারে তৈরি। নিয়মিত আপডেট হয়।"
     },
-    "theme": "navy-gold",
+    "theme": "ocean-breeze",
     "fontPreset": "theme-default",
     "sectionStyles": {
       "home": {
@@ -159,10 +159,10 @@ const SITE_CONTENT = {
   ],
   "hero": {
     "eyebrow": {
-      "en": "Portfolio",
-      "bn": "পোর্টফোলিও"
+      "en": "",
+      "bn": ""
     },
-    "name": "Dr. Md. Moshiur Rahman",
+    "name": "Moshiur Rahman",
     "role": {
       "en": "MS (Anatomy) — Associate Professor, Ad-din Akij Medical College",
       "bn": "এমএস (এনাটমি) — সহযোগী অধ্যাপক, আদ-দ্বীন আকিজ মেডিকেল কলেজ"
