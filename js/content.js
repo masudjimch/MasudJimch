@@ -5,15 +5,15 @@
 
 const SITE_CONTENT = {
   "site": {
-    "name": "Dr. Md. Moshiur Rahman",
+    "name": "Moshiur Masud",
     "initials": "MMR",
     "tagline": "Anatomist, Educator & Researcher",
     "footerNote": {
       "en": "Built with care. Updated regularly.",
       "bn": "যত্ন সহকারে তৈরি। নিয়মিত আপডেট হয়।"
     },
-    "theme": "ocean-breeze",
-    "fontPreset": "theme-default",
+    "theme": "cyber-violet",
+    "fontPreset": "futuristic-tech",
     "sectionStyles": {
       "home": {
         "font": "theme-default",
@@ -211,7 +211,7 @@ const SITE_CONTENT = {
       "bn": "সম্পর্কে"
     },
     "paragraphs": [
-      "I am an Associate Professor of <b><i>Anatomy</i></b> at Ad-din Akij Medical College, with a research-oriented mindset and expertise in research methodology and biostatistics.",
+      "I am an Associate Professor of Anatomy at Ad-din Akij Medical College, with a research-oriented mindset and expertise in research methodology and biostatistics.",
       "As a dedicated educator and curriculum thinker, I have specialized training in histology, plastination, embalming, and genetic laboratory techniques — including DNA extraction, gene amplification, and primer designing.",
       "Earlier in my career I also worked as a Medical Officer managing indoor and outdoor pediatric cases. This site brings together my academic background, publications, and professional journey — feel free to reach out."
     ],
