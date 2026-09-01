@@ -15,7 +15,7 @@ data.blog = data.blog || { heading: "Blog", subheading: "Notes and articles", it
 data.faq = data.faq || { heading: "FAQ", subheading: "Common questions", items: [] };
 data.customSections = data.customSections || [];
 
-function field({ label, value, onChange, textarea = false, span2 = false }) {
+function field({ label, value, onChange, textarea = false, span2 = false, richText = false }) {
   const wrap = document.createElement("div");
   wrap.className = "field" + (span2 ? " span-2" : "");
   const lbl = document.createElement("label");
@@ -25,6 +25,7 @@ function field({ label, value, onChange, textarea = false, span2 = false }) {
   input.value = value ?? "";
   input.addEventListener("input", () => onChange(input.value));
   wrap.appendChild(lbl);
+  if (richText && textarea) wrap.appendChild(buildFormatToolbar(input));
   wrap.appendChild(input);
   return wrap;
 }
@@ -380,10 +381,66 @@ function bilingualField(label, obj, key, opts = {}) {
   wrap.appendChild(lbl);
   const row = document.createElement("div");
   row.className = "bilingual-row";
-  row.appendChild(field({ label: "English", value: val.en, textarea: opts.textarea, onChange: v => val.en = v }));
-  row.appendChild(field({ label: "বাংলা", value: val.bn, textarea: opts.textarea, onChange: v => val.bn = v }));
+  row.appendChild(field({ label: "English", value: val.en, textarea: opts.textarea, richText: opts.richText, onChange: v => val.en = v }));
+  row.appendChild(field({ label: "বাংলা", value: val.bn, textarea: opts.textarea, richText: opts.richText, onChange: v => val.bn = v }));
   wrap.appendChild(row);
   return wrap;
+}
+
+/* ---------------- FORMAT TOOLBAR (bold/italic/underline/size/case/sub-sup) ---------------- */
+// Wraps the current selection in `textarea` with `before`/`after` (used for
+// inline HTML tags) and fires an input event so the field's onChange runs.
+function wrapSelection(textarea, before, after) {
+  const start = textarea.selectionStart, end = textarea.selectionEnd;
+  const val = textarea.value;
+  const selected = val.slice(start, end) || "text";
+  textarea.value = val.slice(0, start) + before + selected + after + val.slice(end);
+  textarea.selectionStart = start + before.length;
+  textarea.selectionEnd = start + before.length + selected.length;
+  textarea.focus();
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+// Transforms the selected text's case in place (no HTML tags involved).
+function transformSelectionCase(textarea, fn) {
+  const start = textarea.selectionStart, end = textarea.selectionEnd;
+  if (start === end) return;
+  const val = textarea.value;
+  const transformed = fn(val.slice(start, end));
+  textarea.value = val.slice(0, start) + transformed + val.slice(end);
+  textarea.selectionStart = start;
+  textarea.selectionEnd = start + transformed.length;
+  textarea.focus();
+  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+}
+
+function buildFormatToolbar(textarea) {
+  const bar = document.createElement("div");
+  bar.className = "format-toolbar";
+  const addBtn = (label, title, onClick) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "format-btn";
+    b.textContent = label;
+    b.title = title;
+    b.addEventListener("click", (e) => { e.preventDefault(); onClick(); });
+    bar.appendChild(b);
+  };
+  addBtn("B", "Bold", () => wrapSelection(textarea, "<b>", "</b>"));
+  addBtn("I", "Italic", () => wrapSelection(textarea, "<i>", "</i>"));
+  addBtn("U", "Underline", () => wrapSelection(textarea, "<u>", "</u>"));
+  addBtn("A+", "Bigger text", () => wrapSelection(textarea, '<span style="font-size:1.3em">', "</span>"));
+  addBtn("A−", "Smaller text", () => wrapSelection(textarea, '<span style="font-size:0.82em">', "</span>"));
+  addBtn("x²", "Superscript", () => wrapSelection(textarea, "<sup>", "</sup>"));
+  addBtn("x₂", "Subscript", () => wrapSelection(textarea, "<sub>", "</sub>"));
+  addBtn("AA", "UPPERCASE", () => transformSelectionCase(textarea, s => s.toUpperCase()));
+  addBtn("aa", "lowercase", () => transformSelectionCase(textarea, s => s.toLowerCase()));
+  addBtn("Aa", "Title Case", () => transformSelectionCase(textarea, s => s.replace(/\w\S*/g, w => w[0].toUpperCase() + w.slice(1).toLowerCase())));
+  const hint = document.createElement("span");
+  hint.className = "format-hint";
+  hint.textContent = "select text, then click a button";
+  bar.appendChild(hint);
+  return bar;
 }
 
 /* ---------------- SITE + NAV ---------------- */
@@ -492,7 +549,7 @@ function renderCustomSectionsAdmin() {
     });
     grid.appendChild(titleField);
     grid.appendChild(bilingualField("Subheading (optional)", cs, "subheading"));
-    grid.appendChild(bilingualField("Content (paragraphs — leave a blank line between paragraphs)", cs, "body", { span2: true, textarea: true }));
+    grid.appendChild(bilingualField("Content (paragraphs — leave a blank line between paragraphs)", cs, "body", { span2: true, textarea: true, richText: true }));
     row.appendChild(grid);
 
     attachDrag(row, i, data.customSections, renderCustomSectionsAdmin);
@@ -590,7 +647,7 @@ function renderAbout() {
   a.paragraphs.forEach((p, i) => {
     const row = document.createElement("div");
     row.className = "repeat-item";
-    row.appendChild(field({ label: `Paragraph ${i + 1}`, value: p, textarea: true, span2: true, onChange: v => a.paragraphs[i] = v }));
+    row.appendChild(field({ label: `Paragraph ${i + 1}`, value: p, textarea: true, richText: true, span2: true, onChange: v => a.paragraphs[i] = v }));
     row.appendChild(removeBtn(() => { a.paragraphs.splice(i, 1); renderAbout(); }));
     paras.appendChild(row);
   });
@@ -882,6 +939,8 @@ function renderBlog() {
 
   const list = clear("blog-list-admin");
   b.items.forEach((item, i) => {
+    item.tags = item.tags || [];
+    item.attachments = item.attachments || [];
     const row = document.createElement("div");
     row.className = "repeat-item";
     row.appendChild(buildPhotoUploader(item, "cover", () => renderBlog()));
@@ -889,13 +948,77 @@ function renderBlog() {
     grid.className = "field-grid";
     grid.appendChild(field({ label: "Title", value: item.title, span2: true, onChange: v => item.title = v }));
     grid.appendChild(field({ label: "Date (YYYY-MM-DD)", value: item.date, onChange: v => item.date = v }));
+    grid.appendChild(field({ label: "Tags (comma separated, e.g. Anatomy, Teaching)", value: item.tags.join(", "), onChange: v => { item.tags = v.split(",").map(s => s.trim()).filter(Boolean); } }));
+    grid.appendChild(field({ label: "External link (optional — e.g. full article on another site)", value: item.externalUrl, span2: true, onChange: v => item.externalUrl = v }));
     grid.appendChild(field({ label: "Excerpt (shows on the card)", value: item.excerpt, span2: true, textarea: true, onChange: v => item.excerpt = v }));
-    grid.appendChild(field({ label: "Full post content (blank line = new paragraph)", value: item.content, span2: true, textarea: true, onChange: v => item.content = v }));
+    grid.appendChild(field({ label: "Full post content (blank line = new paragraph)", value: item.content, span2: true, textarea: true, richText: true, onChange: v => item.content = v }));
     row.appendChild(grid);
+
+    row.appendChild(buildAttachmentsUploader(item, () => renderBlog()));
+
     row.appendChild(removeBtn(() => { b.items.splice(i, 1); renderBlog(); }));
     attachReorder(row, b.items, i, renderBlog);
     list.appendChild(row);
   });
+}
+
+/* ---------------- FILE ATTACHMENTS (any file type) ---------------- */
+const ATTACHMENT_MAX_BYTES = 6 * 1024 * 1024; // 6MB per file — keeps content.js a reasonable size
+
+function formatFileSize(bytes) {
+  if (!bytes) return "";
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
+
+function buildAttachmentsUploader(item, onChange) {
+  const wrap = document.createElement("div");
+  wrap.className = "attachments-uploader";
+
+  const label = document.createElement("label");
+  label.textContent = "Attached files (any type — PDF, Word, Excel, audio, video, zip…)";
+  wrap.appendChild(label);
+
+  const list = document.createElement("div");
+  list.className = "attachments-list";
+  item.attachments.forEach((att, ai) => {
+    const row = document.createElement("div");
+    row.className = "attachment-row";
+    row.innerHTML = `
+      <span class="attachment-name">📎 ${att.name}</span>
+      <span class="attachment-size">${formatFileSize(att.size)}</span>
+      <a href="${att.dataUrl}" target="_blank" rel="noopener">Preview</a>
+    `;
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "remove-btn";
+    removeButton.textContent = "Remove ✕";
+    removeButton.addEventListener("click", () => { item.attachments.splice(ai, 1); onChange(); });
+    row.appendChild(removeButton);
+    list.appendChild(row);
+  });
+  wrap.appendChild(list);
+
+  const input = document.createElement("input");
+  input.type = "file";
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    if (!file) return;
+    if (file.size > ATTACHMENT_MAX_BYTES) {
+      showToast(`"${file.name}" is too large (max 6MB).`);
+      input.value = "";
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      item.attachments.push({ name: file.name, size: file.size, dataUrl: reader.result });
+      onChange();
+    };
+    reader.readAsDataURL(file);
+  });
+  wrap.appendChild(input);
+
+  return wrap;
 }
 
 /* ---------------- FAQ ---------------- */

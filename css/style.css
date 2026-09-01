@@ -610,6 +610,13 @@ nav.main-nav a.active {
 .blog-excerpt { color: var(--ink-soft); font-size: 0.9rem; margin: 0 0 12px; }
 .blog-read-more { font-family: var(--font-mono); font-size: 0.8rem; color: var(--gold); }
 
+.blog-tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.blog-tag {
+  font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.03em;
+  padding: 3px 10px; border-radius: 20px; background: var(--paper-dim);
+  border: 1px solid var(--line); color: var(--ink-soft);
+}
+
 .blog-modal {
   position: fixed;
   inset: 0;
@@ -653,6 +660,19 @@ nav.main-nav a.active {
 }
 .blog-modal-title { font-family: var(--font-display); font-size: 1.7rem; margin: 0 0 20px; color: var(--ink); }
 .blog-modal-body p { color: var(--ink-soft); line-height: 1.7; margin: 0 0 16px; }
+
+.blog-modal-extra { margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--line); }
+.blog-external-link {
+  display: inline-block; font-family: var(--font-mono); font-size: 0.85rem;
+  color: var(--gold); margin-bottom: 14px;
+}
+.blog-attachments-label { font-family: var(--font-mono); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-soft); margin: 0 0 8px; }
+.blog-attachment {
+  display: flex; align-items: center; gap: 6px; padding: 9px 12px; margin-bottom: 6px;
+  border: 1px solid var(--line); border-radius: 8px; font-size: 0.88rem; color: var(--ink);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.blog-attachment:hover { border-color: var(--gold); background: var(--paper-dim); }
 
 /* ===================================================================
    FAQ

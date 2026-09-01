@@ -395,3 +395,28 @@
 .section-manager-row .drag-handle { padding: 0 4px 0 0; }
 .section-manager-label { flex: 1; font-weight: 600; font-size: 0.92rem; color: var(--ink); }
 .section-manager-hint { font-size: 0.78rem; color: var(--ink-soft); }
+
+/* Rich-text format toolbar (Bold/Italic/Underline/size/case/sub-sup) */
+.format-toolbar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px;
+  margin: 4px 0 6px;
+}
+.format-btn {
+  min-width: 28px; height: 26px; padding: 0 7px;
+  border: 1px solid var(--line); border-radius: 5px; background: #fff;
+  font-size: 0.8rem; font-weight: 600; cursor: pointer; color: var(--ink);
+  line-height: 1;
+}
+.format-btn:hover { border-color: var(--gold); color: var(--gold); }
+.format-hint { font-size: 0.72rem; color: var(--ink-soft); margin-left: 4px; }
+
+/* File attachments (blog posts) */
+.attachments-uploader { margin-top: 10px; }
+.attachments-uploader > label { display: block; font-size: 0.78rem; color: var(--ink-soft); margin-bottom: 6px; }
+.attachments-list { display: flex; flex-direction: column; gap: 6px; margin-bottom: 8px; }
+.attachment-row {
+  display: flex; align-items: center; gap: 10px; padding: 7px 10px;
+  border: 1px solid var(--line); border-radius: 6px; background: #fff; font-size: 0.84rem;
+}
+.attachment-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.attachment-size { color: var(--ink-soft); font-size: 0.78rem; }

@@ -54,6 +54,34 @@ const FONT_PRESETS = [
     description: "Syne — confident, geometric, attention-grabbing.",
     fontDisplay: "'Syne', sans-serif",
     fontBody: "'IBM Plex Sans', 'Segoe UI', sans-serif"
+  },
+  {
+    id: "futuristic-tech",
+    name: "Futuristic Tech",
+    description: "Orbitron — sci-fi, technical, great with dark/neon themes.",
+    fontDisplay: "'Orbitron', sans-serif",
+    fontBody: "'Space Grotesk', sans-serif"
+  },
+  {
+    id: "bold-poster",
+    name: "Bold Poster",
+    description: "Bebas Neue — tall, condensed, poster-style headings.",
+    fontDisplay: "'Bebas Neue', sans-serif",
+    fontBody: "'Inter', sans-serif"
+  },
+  {
+    id: "playful-rounded",
+    name: "Playful Rounded",
+    description: "Righteous — friendly, rounded, confident display font.",
+    fontDisplay: "'Righteous', sans-serif",
+    fontBody: "'Poppins', sans-serif"
+  },
+  {
+    id: "neo-grotesk",
+    name: "Neo Grotesk",
+    description: "Unbounded — bold, geometric, contemporary — a stylish match for Neon Nights.",
+    fontDisplay: "'Unbounded', sans-serif",
+    fontBody: "'IBM Plex Sans', 'Segoe UI', sans-serif"
   }
 ];
 

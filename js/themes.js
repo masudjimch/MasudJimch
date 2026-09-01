@@ -128,9 +128,9 @@ const THEMES = [
   {
     id: "neon-nights",
     name: "Neon Nights",
-    description: "Colorful electric dark — neon pink & teal, modern rounded sans.",
+    description: "Colorful electric dark — neon pink & teal, bold geometric display font.",
     radius: "12px",
-    fontDisplay: "'Space Grotesk', sans-serif",
+    fontDisplay: "'Unbounded', 'Space Grotesk', sans-serif",
     vars: {
       paper: "#10121C", paperDim: "#191D2E",
       ink: "#EAF0FF", inkSoft: "#9AA3C7",
@@ -138,6 +138,66 @@ const THEMES = [
       gold: "#FF5FA8", goldSoft: "#FFA3CE",
       sage: "#38E1C6",
       line: "rgba(234,240,255,0.16)"
+    }
+  },
+  {
+    id: "cyber-violet",
+    name: "Cyber Violet",
+    description: "Dark electric violet & cyan — futuristic, high-energy, techy.",
+    radius: "10px",
+    fontDisplay: "'Orbitron', 'Space Grotesk', sans-serif",
+    vars: {
+      paper: "#120E1F", paperDim: "#1B1530",
+      ink: "#EDE9FF", inkSoft: "#A79FCF",
+      night: "#080612", nightSoft: "#160F28",
+      gold: "#B26BFF", goldSoft: "#D9AFFF",
+      sage: "#2FE0D0",
+      line: "rgba(237,233,255,0.16)"
+    }
+  },
+  {
+    id: "graphite-mono",
+    name: "Graphite Mono",
+    description: "Dark minimal grayscale with a single warm amber accent.",
+    radius: "6px",
+    fontDisplay: "'Space Grotesk', sans-serif",
+    vars: {
+      paper: "#16171A", paperDim: "#1F2023",
+      ink: "#EDEEF0", inkSoft: "#9C9EA5",
+      night: "#0A0A0C", nightSoft: "#1A1B1E",
+      gold: "#E0A040", goldSoft: "#F0C583",
+      sage: "#7A8A99",
+      line: "rgba(237,238,240,0.13)"
+    }
+  },
+  {
+    id: "rose-quartz",
+    name: "Rose Quartz",
+    description: "Soft light — dusty rose & mauve, elegant serif headings.",
+    radius: "10px",
+    fontDisplay: "'Cormorant Garamond', Georgia, serif",
+    vars: {
+      paper: "#FBF4F2", paperDim: "#F3E4E1",
+      ink: "#3A2226", inkSoft: "#7A5E60",
+      night: "#3E2229", nightSoft: "#552F38",
+      gold: "#C46B7A", goldSoft: "#E4A6B0",
+      sage: "#8C7A5E",
+      line: "rgba(58,34,38,0.12)"
+    }
+  },
+  {
+    id: "ocean-breeze",
+    name: "Ocean Breeze",
+    description: "Fresh light — sky blue & teal, clean modern sans headings.",
+    radius: "10px",
+    fontDisplay: "'Space Grotesk', sans-serif",
+    vars: {
+      paper: "#F2F8FA", paperDim: "#E3F0F3",
+      ink: "#132B33", inkSoft: "#4E6D76",
+      night: "#0D1F26", nightSoft: "#173540",
+      gold: "#1E8FA8", goldSoft: "#6FC4D8",
+      sage: "#DE8A4E",
+      line: "rgba(19,43,51,0.12)"
     }
   }
 ];

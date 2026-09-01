@@ -477,6 +477,7 @@ function renderBlog() {
         ${post.date ? `<p class="blog-date">${formatDate(post.date)}</p>` : ""}
         <p class="blog-title">${post.title || ""}</p>
         <p class="blog-excerpt">${post.excerpt || ""}</p>
+        ${post.tags && post.tags.length ? `<div class="blog-tags">${post.tags.map(tg => `<span class="blog-tag">${tg}</span>`).join("")}</div>` : ""}
         <span class="blog-read-more">Read more →</span>
       </div>
     </button>
@@ -506,6 +507,28 @@ function openBlogModal(post) {
   } else {
     cover.style.display = "none";
   }
+
+  const tagsWrap = document.getElementById("blog-modal-tags");
+  if (post.tags && post.tags.length) {
+    tagsWrap.innerHTML = post.tags.map(tg => `<span class="blog-tag">${tg}</span>`).join("");
+    tagsWrap.style.display = "";
+  } else {
+    tagsWrap.style.display = "none";
+  }
+
+  const extra = document.getElementById("blog-modal-extra");
+  let extraHtml = "";
+  if (post.externalUrl) {
+    extraHtml += `<a class="blog-external-link" href="${post.externalUrl}" target="_blank" rel="noopener">Read the full post ↗</a>`;
+  }
+  if (post.attachments && post.attachments.length) {
+    extraHtml += `<div class="blog-attachments"><p class="blog-attachments-label">Attached files</p>${post.attachments.map(att =>
+      `<a class="blog-attachment" href="${att.dataUrl}" download="${att.name}">📎 ${att.name}</a>`
+    ).join("")}</div>`;
+  }
+  extra.innerHTML = extraHtml;
+  extra.style.display = extraHtml ? "" : "none";
+
   modal.classList.add("open");
   document.body.style.overflow = "hidden";
 }

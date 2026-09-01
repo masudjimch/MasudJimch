@@ -18,7 +18,11 @@ const HEADING_FONTS = [
   { id: "space-grotesk", name: "Space Grotesk", css: "'Space Grotesk', sans-serif" },
   { id: "inter", name: "Inter", css: "'Inter', sans-serif" },
   { id: "syne", name: "Syne", css: "'Syne', sans-serif" },
-  { id: "poppins", name: "Poppins", css: "'Poppins', sans-serif" }
+  { id: "poppins", name: "Poppins", css: "'Poppins', sans-serif" },
+  { id: "orbitron", name: "Orbitron (futuristic)", css: "'Orbitron', sans-serif" },
+  { id: "bebas-neue", name: "Bebas Neue (bold poster)", css: "'Bebas Neue', sans-serif" },
+  { id: "righteous", name: "Righteous (playful rounded)", css: "'Righteous', sans-serif" },
+  { id: "unbounded", name: "Unbounded (bold geometric)", css: "'Unbounded', sans-serif" }
 ];
 
 const ACCENT_COLORS = [
@@ -61,6 +65,35 @@ function getSectionOrder(order, customSections) {
 function getHeadingFont(id) { return HEADING_FONTS.find(f => f.id === id) || HEADING_FONTS[0]; }
 function getAccentColor(id) { return ACCENT_COLORS.find(c => c.id === id) || ACCENT_COLORS[0]; }
 
+// --- Contrast guard -------------------------------------------------------
+// A section-heading accent color that looked fine on a light theme can
+// become nearly invisible if the person later switches to a dark theme (or
+// vice versa). Before applying a custom heading color we check it against
+// the current page background and silently fall back to the theme's own
+// (always-legible) heading color if the contrast is too low.
+function relLuminance(hex) {
+  const c = hex.replace("#", "");
+  const r = parseInt(c.substr(0, 2), 16) / 255;
+  const g = parseInt(c.substr(2, 2), 16) / 255;
+  const b = parseInt(c.substr(4, 2), 16) / 255;
+  const lin = v => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+}
+function contrastRatio(hex1, hex2) {
+  const l1 = relLuminance(hex1), l2 = relLuminance(hex2);
+  const lighter = Math.max(l1, l2), darker = Math.min(l1, l2);
+  return (lighter + 0.05) / (darker + 0.05);
+}
+function isColorSafeOnPaper(hex) {
+  try {
+    const paper = getComputedStyle(document.documentElement).getPropertyValue("--paper").trim();
+    if (!paper) return true;
+    return contrastRatio(hex, paper) >= 2.5;
+  } catch (e) {
+    return true;
+  }
+}
+
 // Applies each section's chosen heading font/color as scoped CSS variables
 // directly on that <section> element, so it only affects that section.
 function applySectionStyles(sectionStyles, customSections) {
@@ -73,7 +106,7 @@ function applySectionStyles(sectionStyles, customSections) {
     const color = getAccentColor(conf.color);
     if (font.css) el.style.setProperty("--heading-font", font.css);
     else el.style.removeProperty("--heading-font");
-    if (color.hex) el.style.setProperty("--heading-color", color.hex);
+    if (color.hex && isColorSafeOnPaper(color.hex)) el.style.setProperty("--heading-color", color.hex);
     else el.style.removeProperty("--heading-color");
   });
 }
