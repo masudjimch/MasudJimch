@@ -168,7 +168,7 @@ const SITE_CONTENT = {
       "bn": "এমএস (এনাটমি) — সহযোগী অধ্যাপক, আদ-দ্বীন আকিজ মেডিকেল কলেজ"
     },
     "tagline": {
-      "en": "Enthusiastic <b><i>anatomist</i></b> with a research-oriented mindset — specialized in histology, plastination, and genetic laboratory techniques.",
+      "en": "Enthusiastic anatomist with a research-oriented mindset — specialized in histology, plastination, and genetic laboratory techniques.",
       "bn": "গবেষণামুখী মানসিকতাসম্পন্ন একজন উৎসাহী <b><i>এনাটমিস্ট</i></b> — হিস্টোলজি, প্লাস্টিনেশন ও জেনেটিক ল্যাবরেটরি কৌশলে বিশেষ প্রশিক্ষণপ্রাপ্ত।"
     },
     "ctaLabel": {
