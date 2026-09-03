@@ -53,7 +53,7 @@ const SITE_CONTENT = {
       },
       "contact": {
         "font": "theme-default",
-        "color": "theme-default"
+        "color": "sapphire"
       }
     },
     "defaultLang": "en",
