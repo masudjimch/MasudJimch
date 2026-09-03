@@ -14,6 +14,15 @@ function t(field) {
   return field;
 }
 
+// Removes inline HTML tags from a rich-text string — used for attributes
+// like alt text, where tags can't render and should be plain text instead.
+function stripTags(html) {
+  if (!html) return "";
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return div.textContent || "";
+}
+
 function getLang() {
   return document.documentElement.getAttribute("data-lang") ||
     localStorage.getItem(LANG_KEY) ||
@@ -92,17 +101,17 @@ function renderNav() {
 
 function renderHero() {
   const h = SITE_CONTENT.hero;
-  document.getElementById("hero-eyebrow").textContent = t(h.eyebrow);
-  document.getElementById("hero-name").textContent = h.name;
-  document.getElementById("hero-role").textContent = t(h.role);
-  document.getElementById("hero-tagline").textContent = t(h.tagline);
+  document.getElementById("hero-eyebrow").innerHTML = t(h.eyebrow);
+  document.getElementById("hero-name").innerHTML = h.name;
+  document.getElementById("hero-role").innerHTML = t(h.role);
+  document.getElementById("hero-tagline").innerHTML = t(h.tagline);
   document.getElementById("hero-cta").innerHTML = `${h.ctaIcon ? `<span class="btn-icon">${h.ctaIcon}</span>` : ""}${t(h.ctaLabel)}`;
   document.getElementById("hero-cta").href = h.ctaHref;
   document.getElementById("hero-photo").src = h.photo;
-  document.getElementById("hero-photo").alt = h.name;
+  document.getElementById("hero-photo").alt = stripTags(h.name);
 
   const statusEl = document.getElementById("hero-status");
-  if (statusEl) statusEl.textContent = t(h.status);
+  if (statusEl) statusEl.innerHTML = t(h.status);
 
   const badgeWrap = document.getElementById("hero-badges");
   if (badgeWrap && h.badges) {
@@ -117,9 +126,9 @@ function renderHero() {
 
 function renderAbout() {
   const a = SITE_CONTENT.about;
-  document.getElementById("about-heading").textContent = t(a.heading);
+  document.getElementById("about-heading").innerHTML = t(a.heading);
   document.getElementById("about-photo").src = a.photo;
-  document.getElementById("about-photo").alt = t(a.heading);
+  document.getElementById("about-photo").alt = stripTags(t(a.heading));
 
   const textWrap = document.getElementById("about-text");
   textWrap.innerHTML = a.paragraphs.map(p => `<p>${p}</p>`).join("");
@@ -193,8 +202,8 @@ function renderApps() {
     return;
   }
   if (section) section.style.display = "";
-  document.getElementById("apps-heading").textContent = t(a.heading);
-  document.getElementById("apps-subheading").textContent = t(a.subheading);
+  document.getElementById("apps-heading").innerHTML = t(a.heading);
+  document.getElementById("apps-subheading").innerHTML = t(a.subheading);
 
   document.getElementById("apps-grid").innerHTML = (a.items || []).map(app => `
     <div class="app-card">
@@ -221,8 +230,8 @@ function renderApps() {
 
 function renderPublications() {
   const p = SITE_CONTENT.publications;
-  document.getElementById("publications-heading").textContent = t(p.heading);
-  document.getElementById("publications-subheading").textContent = t(p.subheading);
+  document.getElementById("publications-heading").innerHTML = t(p.heading);
+  document.getElementById("publications-subheading").innerHTML = t(p.subheading);
 
   renderTabbedSection({
     data: p,
@@ -269,8 +278,8 @@ function renderJourney() {
   }
   if (section) section.style.display = "";
   section.dataset.view = journeyState.view;
-  document.getElementById("journey-heading").textContent = t(j.heading);
-  document.getElementById("journey-subheading").textContent = t(j.subheading);
+  document.getElementById("journey-heading").innerHTML = t(j.heading);
+  document.getElementById("journey-subheading").innerHTML = t(j.subheading);
 
   // List view (unchanged, chronological cards)
   document.getElementById("journey-list").innerHTML = j.items.map(item => `
@@ -387,8 +396,8 @@ function renderTestimonials() {
   const section = document.getElementById("testimonials");
   if (!te) { if (section) section.style.display = "none"; return; }
   if (section) section.style.display = "";
-  document.getElementById("testimonials-heading").textContent = t(te.heading);
-  document.getElementById("testimonials-subheading").textContent = t(te.subheading);
+  document.getElementById("testimonials-heading").innerHTML = t(te.heading);
+  document.getElementById("testimonials-subheading").innerHTML = t(te.subheading);
 
   document.getElementById("testimonials-grid").innerHTML = (te.items || []).map(item => `
     <div class="testimonial-card">
@@ -405,8 +414,8 @@ function renderTestimonials() {
 
   const headingEl = document.getElementById("feedback-heading");
   const noteEl = document.getElementById("feedback-note");
-  if (headingEl) headingEl.textContent = t(te.formHeading) || "Share your feedback";
-  if (noteEl) noteEl.textContent = t(te.formNote) || "";
+  if (headingEl) headingEl.innerHTML = t(te.formHeading) || "Share your feedback";
+  if (noteEl) noteEl.innerHTML = t(te.formNote) || "";
 
   setupFeedbackForm();
 }
@@ -465,8 +474,8 @@ function renderBlog() {
     return;
   }
   if (section) section.style.display = "";
-  document.getElementById("blog-heading").textContent = t(b.heading);
-  document.getElementById("blog-subheading").textContent = t(b.subheading);
+  document.getElementById("blog-heading").innerHTML = t(b.heading);
+  document.getElementById("blog-subheading").innerHTML = t(b.subheading);
 
   const items = [...b.items].sort((x, y) => (y.date || "").localeCompare(x.date || ""));
 
@@ -496,7 +505,7 @@ function formatDate(iso) {
 
 function openBlogModal(post) {
   const modal = document.getElementById("blog-modal");
-  document.getElementById("blog-modal-title").textContent = post.title || "";
+  document.getElementById("blog-modal-title").innerHTML = post.title || "";
   document.getElementById("blog-modal-date").textContent = post.date ? formatDate(post.date) : "";
   document.getElementById("blog-modal-body").innerHTML = (post.content || "")
     .split(/\n\s*\n/).map(p => `<p>${p.trim()}</p>`).join("");
@@ -547,8 +556,8 @@ function renderFaq() {
     return;
   }
   if (section) section.style.display = "";
-  document.getElementById("faq-heading").textContent = t(f.heading);
-  document.getElementById("faq-subheading").textContent = t(f.subheading);
+  document.getElementById("faq-heading").innerHTML = t(f.heading);
+  document.getElementById("faq-subheading").innerHTML = t(f.subheading);
 
   document.getElementById("faq-list").innerHTML = f.items.map((item) => `
     <div class="faq-item">
@@ -567,8 +576,8 @@ function renderFaq() {
 
 function renderGallery() {
   const g = SITE_CONTENT.gallery;
-  document.getElementById("gallery-heading").textContent = t(g.heading);
-  document.getElementById("gallery-subheading").textContent = t(g.subheading);
+  document.getElementById("gallery-heading").innerHTML = t(g.heading);
+  document.getElementById("gallery-subheading").innerHTML = t(g.subheading);
 
   renderTabbedSection({
     data: g,
@@ -589,8 +598,8 @@ function renderGallery() {
 
 function renderContact() {
   const c = SITE_CONTENT.contact;
-  document.getElementById("contact-heading").textContent = t(c.heading);
-  document.getElementById("contact-subheading").textContent = t(c.subheading);
+  document.getElementById("contact-heading").innerHTML = t(c.heading);
+  document.getElementById("contact-subheading").innerHTML = t(c.subheading);
 
   // Backward-compatible: older content.js files had a single c.email string.
   const emails = (c.emails && c.emails.length) ? c.emails : (c.email ? [{ icon: "📧", label: "Email", value: c.email }] : []);
@@ -615,7 +624,7 @@ function renderContact() {
 }
 
 function renderFooter() {
-  document.getElementById("footer-note").textContent =
+  document.getElementById("footer-note").innerHTML =
     `© ${new Date().getFullYear()} ${SITE_CONTENT.site.name}. ${t(SITE_CONTENT.site.footerNote)}`;
 }
 
@@ -635,9 +644,9 @@ function renderWhatsapp() {
 /* ---------------- SEO / SOCIAL META ---------------- */
 function renderSeo() {
   const s = SITE_CONTENT.site;
-  document.title = `${s.name} — ${s.tagline || ""}`;
+  document.title = `${stripTags(s.name)} — ${stripTags(s.tagline || "")}`;
   setMeta("description", s.seoDescription || "", false);
-  setMeta("og:title", s.name, true);
+  setMeta("og:title", stripTags(s.name), true);
   setMeta("og:description", s.seoDescription || "", true);
   if (s.socialImage) setMeta("og:image", new URL(s.socialImage, window.location.href).href, true);
   setMeta("twitter:card", "summary_large_image", false);
