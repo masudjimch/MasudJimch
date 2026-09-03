@@ -225,6 +225,9 @@ function applyTheme(id) {
 }
 
 // Apply immediately (before full DOM render) to avoid a flash of the default theme.
-if (typeof SITE_CONTENT !== "undefined") {
+// Skip this on admin.html: the editor always stays in its own fixed light UI so
+// its fields and labels stay legible no matter which theme is chosen for the
+// public site (a dark site theme should never make the editor itself dark).
+if (typeof SITE_CONTENT !== "undefined" && !/admin\.html$/.test(location.pathname)) {
   applyTheme((SITE_CONTENT.site && SITE_CONTENT.site.theme) || "navy-gold");
 }

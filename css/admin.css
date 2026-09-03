@@ -1,4 +1,4 @@
-.admin-body { background: var(--paper-dim); }
+.admin-body { background: var(--paper-dim); color-scheme: light; }
 
 .admin-header {
   background: var(--night);

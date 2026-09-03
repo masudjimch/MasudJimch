@@ -15,7 +15,7 @@ data.blog = data.blog || { heading: "Blog", subheading: "Notes and articles", it
 data.faq = data.faq || { heading: "FAQ", subheading: "Common questions", items: [] };
 data.customSections = data.customSections || [];
 
-function field({ label, value, onChange, textarea = false, span2 = false, richText = false }) {
+function field({ label, value, onChange, textarea = false, span2 = false, richText = true }) {
   const wrap = document.createElement("div");
   wrap.className = "field" + (span2 ? " span-2" : "");
   const lbl = document.createElement("label");
@@ -25,7 +25,7 @@ function field({ label, value, onChange, textarea = false, span2 = false, richTe
   input.value = value ?? "";
   input.addEventListener("input", () => onChange(input.value));
   wrap.appendChild(lbl);
-  if (richText && textarea) wrap.appendChild(buildFormatToolbar(input));
+  if (richText) wrap.appendChild(buildFormatToolbar(input));
   wrap.appendChild(input);
   return wrap;
 }
@@ -293,11 +293,11 @@ function renderGithubFields() {
   const cfg = ghLoadConfig() || { owner: "", repo: "", branch: "main", token: "" };
   const c = clear("github-fields");
 
-  c.appendChild(field({ label: "GitHub username / organization", value: cfg.owner, onChange: v => { cfg.owner = v; ghSaveConfig(cfg); } }));
-  c.appendChild(field({ label: "Repository name", value: cfg.repo, onChange: v => { cfg.repo = v; ghSaveConfig(cfg); } }));
-  c.appendChild(field({ label: "Branch", value: cfg.branch || "main", onChange: v => { cfg.branch = v; ghSaveConfig(cfg); } }));
+  c.appendChild(field({ label: "GitHub username / organization", value: cfg.owner, richText: false, onChange: v => { cfg.owner = v; ghSaveConfig(cfg); } }));
+  c.appendChild(field({ label: "Repository name", value: cfg.repo, richText: false, onChange: v => { cfg.repo = v; ghSaveConfig(cfg); } }));
+  c.appendChild(field({ label: "Branch", value: cfg.branch || "main", richText: false, onChange: v => { cfg.branch = v; ghSaveConfig(cfg); } }));
 
-  const tokenField = field({ label: "Personal access token", value: cfg.token, onChange: v => { cfg.token = v; ghSaveConfig(cfg); }, span2: true });
+  const tokenField = field({ label: "Personal access token", value: cfg.token, richText: false, onChange: v => { cfg.token = v; ghSaveConfig(cfg); }, span2: true });
   const tokenInput = tokenField.querySelector("input");
   tokenInput.type = "password";
   tokenInput.autocomplete = "off";
@@ -457,7 +457,7 @@ function renderSite() {
     const grid = document.createElement("div");
     grid.className = "field-grid";
     grid.appendChild(bilingualField("Menu label", item, "label"));
-    grid.appendChild(field({ label: "Links to (e.g. #about)", value: item.href, onChange: v => item.href = v }));
+    grid.appendChild(field({ label: "Links to (e.g. #about)", value: item.href, richText: false, onChange: v => item.href = v }));
     row.appendChild(grid);
     row.appendChild(removeBtn(() => { data.nav.splice(i, 1); renderSite(); }));
     attachReorder(row, data.nav, i, renderSite);
@@ -465,11 +465,11 @@ function renderSite() {
   });
 
   const s = clear("site-settings-fields");
-  s.appendChild(field({ label: "WhatsApp number (with country code, digits only, e.g. 8801XXXXXXXXX)", value: data.site.whatsapp, onChange: v => data.site.whatsapp = v }));
-  s.appendChild(field({ label: "Google Analytics ID (e.g. G-XXXXXXX, leave blank to disable)", value: data.site.gaId, onChange: v => data.site.gaId = v }));
+  s.appendChild(field({ label: "WhatsApp number (with country code, digits only, e.g. 8801XXXXXXXXX)", value: data.site.whatsapp, richText: false, onChange: v => data.site.whatsapp = v }));
+  s.appendChild(field({ label: "Google Analytics ID (e.g. G-XXXXXXX, leave blank to disable)", value: data.site.gaId, richText: false, onChange: v => data.site.gaId = v }));
   s.appendChild(field({ label: "SEO description (shown in Google/social previews)", value: data.site.seoDescription, textarea: true, span2: true, onChange: v => data.site.seoDescription = v }));
-  s.appendChild(field({ label: "Social preview image path (images/yourfile.jpg)", value: data.site.socialImage, span2: true, onChange: v => data.site.socialImage = v }));
-  s.appendChild(field({ label: "Feedback form endpoint (optional — from Formspree.io or similar; leave blank to use email instead)", value: data.site.feedbackFormEndpoint, span2: true, onChange: v => data.site.feedbackFormEndpoint = v }));
+  s.appendChild(field({ label: "Social preview image path (images/yourfile.jpg)", value: data.site.socialImage, span2: true, richText: false, onChange: v => data.site.socialImage = v }));
+  s.appendChild(field({ label: "Feedback form endpoint (optional — from Formspree.io or similar; leave blank to use email instead)", value: data.site.feedbackFormEndpoint, span2: true, richText: false, onChange: v => data.site.feedbackFormEndpoint = v }));
 }
 
 /* ---------------- SECTIONS: show/hide + reorder ---------------- */
@@ -577,9 +577,9 @@ function renderHero() {
   c.appendChild(bilingualField("Role / title", h, "role"));
   c.appendChild(bilingualField("Tagline", h, "tagline", { textarea: true, span2: true }));
   c.appendChild(bilingualField("Button text", h, "ctaLabel"));
-  c.appendChild(field({ label: "Button icon (emoji)", value: h.ctaIcon, onChange: v => h.ctaIcon = v }));
-  c.appendChild(field({ label: "Button links to", value: h.ctaHref, onChange: v => h.ctaHref = v }));
-  c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: h.photo, onChange: v => h.photo = v, span2: true }));
+  c.appendChild(field({ label: "Button icon (emoji)", value: h.ctaIcon, richText: false, onChange: v => h.ctaIcon = v }));
+  c.appendChild(field({ label: "Button links to", value: h.ctaHref, richText: false, onChange: v => h.ctaHref = v }));
+  c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: h.photo, richText: false, onChange: v => h.photo = v, span2: true }));
   c.appendChild(bilingualField("Status text (e.g. Available)", h, "status"));
 
   const badgeList = clear("hero-badges-list");
@@ -588,7 +588,7 @@ function renderHero() {
     row.className = "repeat-item";
     const grid = document.createElement("div");
     grid.className = "field-grid";
-    grid.appendChild(field({ label: "Emoji/icon", value: b.icon, onChange: v => b.icon = v }));
+    grid.appendChild(field({ label: "Emoji/icon", value: b.icon, richText: false, onChange: v => b.icon = v }));
     grid.appendChild(field({ label: "Label (e.g. Physician)", value: b.label, onChange: v => b.label = v }));
     row.appendChild(grid);
     row.appendChild(removeBtn(() => { h.badges.splice(i, 1); renderHero(); }));
@@ -641,7 +641,7 @@ function renderAbout() {
   const c = clear("about-fields");
   const a = data.about;
   c.appendChild(bilingualField("Section heading", a, "heading"));
-  c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: a.photo, onChange: v => a.photo = v }));
+  c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: a.photo, richText: false, onChange: v => a.photo = v }));
 
   const paras = clear("about-paragraphs");
   a.paragraphs.forEach((p, i) => {
@@ -782,12 +782,12 @@ function renderApps() {
     grid.appendChild(field({ label: "Platform (e.g. Android, iOS, Web)", value: app.platform, onChange: v => app.platform = v }));
     grid.appendChild(field({ label: "Tagline / short description", value: app.tagline, span2: true, onChange: v => app.tagline = v }));
     grid.appendChild(field({ label: "Price (e.g. Free, $2.99)", value: app.price, onChange: v => app.price = v }));
-    grid.appendChild(field({ label: "Rating (0–5, e.g. 4.5)", value: String(app.rating ?? ""), onChange: v => app.rating = parseFloat(v) || 0 }));
+    grid.appendChild(field({ label: "Rating (0–5, e.g. 4.5)", value: String(app.rating ?? ""), richText: false, onChange: v => app.rating = parseFloat(v) || 0 }));
     grid.appendChild(field({ label: "Rating count text (e.g. 120 reviews)", value: app.ratingCount, onChange: v => app.ratingCount = v }));
     grid.appendChild(field({ label: "Primary button label (e.g. Get on Play Store)", value: app.primaryCtaLabel, onChange: v => app.primaryCtaLabel = v }));
-    grid.appendChild(field({ label: "Primary button URL", value: app.primaryCtaUrl, onChange: v => app.primaryCtaUrl = v }));
+    grid.appendChild(field({ label: "Primary button URL", value: app.primaryCtaUrl, richText: false, onChange: v => app.primaryCtaUrl = v }));
     grid.appendChild(field({ label: "Secondary button label (optional, e.g. Direct Download)", value: app.secondaryCtaLabel, onChange: v => app.secondaryCtaLabel = v }));
-    grid.appendChild(field({ label: "Secondary button URL (optional)", value: app.secondaryCtaUrl, onChange: v => app.secondaryCtaUrl = v }));
+    grid.appendChild(field({ label: "Secondary button URL (optional)", value: app.secondaryCtaUrl, richText: false, onChange: v => app.secondaryCtaUrl = v }));
     row.appendChild(grid);
 
     row.appendChild(removeBtn(() => { apps.items.splice(i, 1); renderApps(); }));
@@ -826,7 +826,7 @@ function renderPublications() {
       g.appendChild(field({ label: "Title", value: item.title, span2: true, onChange: v => item.title = v }));
       g.appendChild(field({ label: "Journal / publisher", value: item.journal, onChange: v => item.journal = v }));
       g.appendChild(field({ label: "Year", value: item.year, onChange: v => item.year = v }));
-      g.appendChild(field({ label: "Link (URL, optional)", value: item.link, span2: true, onChange: v => item.link = v }));
+      g.appendChild(field({ label: "Link (URL, optional)", value: item.link, span2: true, richText: false, onChange: v => item.link = v }));
       row.appendChild(g);
       row.appendChild(buildPdfUploader(item, () => renderPublications()));
       row.appendChild(removeBtn(() => { cat.items.splice(ii, 1); renderPublications(); }));
@@ -947,9 +947,9 @@ function renderBlog() {
     const grid = document.createElement("div");
     grid.className = "field-grid";
     grid.appendChild(field({ label: "Title", value: item.title, span2: true, onChange: v => item.title = v }));
-    grid.appendChild(field({ label: "Date (YYYY-MM-DD)", value: item.date, onChange: v => item.date = v }));
+    grid.appendChild(field({ label: "Date (YYYY-MM-DD)", value: item.date, richText: false, onChange: v => item.date = v }));
     grid.appendChild(field({ label: "Tags (comma separated, e.g. Anatomy, Teaching)", value: item.tags.join(", "), onChange: v => { item.tags = v.split(",").map(s => s.trim()).filter(Boolean); } }));
-    grid.appendChild(field({ label: "External link (optional — e.g. full article on another site)", value: item.externalUrl, span2: true, onChange: v => item.externalUrl = v }));
+    grid.appendChild(field({ label: "External link (optional — e.g. full article on another site)", value: item.externalUrl, span2: true, richText: false, onChange: v => item.externalUrl = v }));
     grid.appendChild(field({ label: "Excerpt (shows on the card)", value: item.excerpt, span2: true, textarea: true, onChange: v => item.excerpt = v }));
     grid.appendChild(field({ label: "Full post content (blank line = new paragraph)", value: item.content, span2: true, textarea: true, richText: true, onChange: v => item.content = v }));
     row.appendChild(grid);
@@ -1072,7 +1072,7 @@ function renderGallery() {
       row.className = "repeat-item";
       const gg = document.createElement("div");
       gg.className = "field-grid";
-      gg.appendChild(field({ label: "Image path (images/yourfile.jpg)", value: img.src, span2: true, onChange: v => img.src = v }));
+      gg.appendChild(field({ label: "Image path (images/yourfile.jpg)", value: img.src, span2: true, richText: false, onChange: v => img.src = v }));
       gg.appendChild(field({ label: "Caption", value: img.caption, span2: true, onChange: v => img.caption = v }));
       row.appendChild(gg);
       row.appendChild(removeBtn(() => { cat.images.splice(ii, 1); renderGallery(); }));
@@ -1133,7 +1133,7 @@ function renderContact() {
     grid.className = "field-grid";
     grid.appendChild(iconPickerField("Icon", l.icon, v => l.icon = v));
     grid.appendChild(field({ label: "Label (e.g. LinkedIn)", value: l.label, onChange: v => l.label = v }));
-    grid.appendChild(field({ label: "URL", value: l.url, span2: true, onChange: v => l.url = v }));
+    grid.appendChild(field({ label: "URL", value: l.url, span2: true, richText: false, onChange: v => l.url = v }));
     row.appendChild(grid);
     row.appendChild(removeBtn(() => { ct.links.splice(i, 1); renderContact(); }));
     attachReorder(row, ct.links, i, renderContact);
