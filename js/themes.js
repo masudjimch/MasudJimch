@@ -222,12 +222,21 @@ function applyTheme(id) {
   root.setProperty("--radius", theme.radius);
   root.setProperty("--font-display", theme.fontDisplay);
   document.documentElement.setAttribute("data-theme", theme.id);
+
+  // Tell the browser whether this theme is light or dark (based on the
+  // paper/background color's brightness) so native form control chrome —
+  // checkboxes, file pickers, scrollbars — matches instead of clashing.
+  const hex = theme.vars.paper.replace("#", "");
+  const r = parseInt(hex.substr(0, 2), 16), g = parseInt(hex.substr(2, 2), 16), b = parseInt(hex.substr(4, 2), 16);
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+  document.documentElement.style.colorScheme = brightness < 128 ? "dark" : "light";
 }
 
 // Apply immediately (before full DOM render) to avoid a flash of the default theme.
-// Skip this on admin.html: the editor always stays in its own fixed light UI so
-// its fields and labels stay legible no matter which theme is chosen for the
-// public site (a dark site theme should never make the editor itself dark).
-if (typeof SITE_CONTENT !== "undefined" && !/admin\.html$/.test(location.pathname)) {
+// admin.html shares the same theme system as the live site (its own CSS uses
+// theme variables throughout, so its boxes/fields adapt correctly too) and also
+// sets color-scheme so native form control chrome (checkboxes, file pickers,
+// etc.) matches light/dark themes correctly.
+if (typeof SITE_CONTENT !== "undefined") {
   applyTheme((SITE_CONTENT.site && SITE_CONTENT.site.theme) || "navy-gold");
 }

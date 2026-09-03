@@ -15,7 +15,7 @@ data.blog = data.blog || { heading: "Blog", subheading: "Notes and articles", it
 data.faq = data.faq || { heading: "FAQ", subheading: "Common questions", items: [] };
 data.customSections = data.customSections || [];
 
-function field({ label, value, onChange, textarea = false, span2 = false, richText = true }) {
+function field({ label, value, onChange, textarea = false, span2 = false, richText = true, statusLabel = null }) {
   const wrap = document.createElement("div");
   wrap.className = "field" + (span2 ? " span-2" : "");
   const lbl = document.createElement("label");
@@ -24,8 +24,11 @@ function field({ label, value, onChange, textarea = false, span2 = false, richTe
   if (!textarea) input.type = "text";
   input.value = value ?? "";
   input.addEventListener("input", () => onChange(input.value));
+  if (richText) {
+    input.classList.add("formattable");
+    input.addEventListener("focus", () => setActiveFormatField(input, statusLabel || label));
+  }
   wrap.appendChild(lbl);
-  if (richText) wrap.appendChild(buildFormatToolbar(input));
   wrap.appendChild(input);
   return wrap;
 }
@@ -381,66 +384,130 @@ function bilingualField(label, obj, key, opts = {}) {
   wrap.appendChild(lbl);
   const row = document.createElement("div");
   row.className = "bilingual-row";
-  row.appendChild(field({ label: "English", value: val.en, textarea: opts.textarea, richText: opts.richText, onChange: v => val.en = v }));
-  row.appendChild(field({ label: "বাংলা", value: val.bn, textarea: opts.textarea, richText: opts.richText, onChange: v => val.bn = v }));
+  row.appendChild(field({ label: "English", value: val.en, textarea: opts.textarea, richText: opts.richText, onChange: v => val.en = v, statusLabel: `${label} (English)` }));
+  row.appendChild(field({ label: "বাংলা", value: val.bn, textarea: opts.textarea, richText: opts.richText, onChange: v => val.bn = v, statusLabel: `${label} (বাংলা)` }));
   wrap.appendChild(row);
   return wrap;
 }
 
-/* ---------------- FORMAT TOOLBAR (bold/italic/underline/size/case/sub-sup) ---------------- */
-// Wraps the current selection in `textarea` with `before`/`after` (used for
-// inline HTML tags) and fires an input event so the field's onChange runs.
-function wrapSelection(textarea, before, after) {
-  const start = textarea.selectionStart, end = textarea.selectionEnd;
-  const val = textarea.value;
+/* ---------------- MASTER FORMAT TOOLBAR (bold/italic/underline/size/case/sub-sup/font) ----------------
+   One toolbar, docked to the side, instead of a toolbar under every field.
+   Click into any text field to make it the active target, select the words you
+   want to change, then use the toolbar. */
+let activeFormatField = null;
+
+function setActiveFormatField(input, label) {
+  activeFormatField = input;
+  const status = document.getElementById("master-format-status");
+  const toolbar = document.getElementById("master-format-toolbar");
+  if (status) status.textContent = "Editing: " + label;
+  if (toolbar) toolbar.classList.remove("disabled");
+}
+
+// Wraps the current selection in the active field with `before`/`after` (used
+// for inline HTML tags) and fires an input event so the field's onChange runs.
+function wrapSelection(before, after) {
+  const el = activeFormatField;
+  if (!el) return;
+  const start = el.selectionStart, end = el.selectionEnd;
+  const val = el.value;
   const selected = val.slice(start, end) || "text";
-  textarea.value = val.slice(0, start) + before + selected + after + val.slice(end);
-  textarea.selectionStart = start + before.length;
-  textarea.selectionEnd = start + before.length + selected.length;
-  textarea.focus();
-  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+  el.value = val.slice(0, start) + before + selected + after + val.slice(end);
+  el.selectionStart = start + before.length;
+  el.selectionEnd = start + before.length + selected.length;
+  el.focus();
+  el.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
 // Transforms the selected text's case in place (no HTML tags involved).
-function transformSelectionCase(textarea, fn) {
-  const start = textarea.selectionStart, end = textarea.selectionEnd;
+function transformSelectionCase(fn) {
+  const el = activeFormatField;
+  if (!el) return;
+  const start = el.selectionStart, end = el.selectionEnd;
   if (start === end) return;
-  const val = textarea.value;
+  const val = el.value;
   const transformed = fn(val.slice(start, end));
-  textarea.value = val.slice(0, start) + transformed + val.slice(end);
-  textarea.selectionStart = start;
-  textarea.selectionEnd = start + transformed.length;
-  textarea.focus();
-  textarea.dispatchEvent(new Event("input", { bubbles: true }));
+  el.value = val.slice(0, start) + transformed + val.slice(end);
+  el.selectionStart = start;
+  el.selectionEnd = start + transformed.length;
+  el.focus();
+  el.dispatchEvent(new Event("input", { bubbles: true }));
 }
 
-function buildFormatToolbar(textarea) {
+function setupAdminBackToTop() {
+  const btn = document.getElementById("admin-back-to-top");
+  if (!btn) return;
+  const toggle = () => btn.classList.toggle("show", window.scrollY > 480);
+  toggle();
+  window.addEventListener("scroll", toggle, { passive: true });
+  btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+}
+
+function buildMasterFormatToolbar() {
   const bar = document.createElement("div");
-  bar.className = "format-toolbar";
-  const addBtn = (label, title, onClick) => {
+  bar.id = "master-format-toolbar";
+  bar.className = "master-format-toolbar disabled";
+
+  const title = document.createElement("div");
+  title.className = "master-format-title";
+  title.textContent = "Format";
+  bar.appendChild(title);
+
+  const status = document.createElement("div");
+  status.id = "master-format-status";
+  status.className = "master-format-status";
+  status.textContent = "Click into any text field, select some words, then use the buttons below.";
+  bar.appendChild(status);
+
+  const fontSelect = document.createElement("select");
+  fontSelect.className = "master-format-font-select";
+  HEADING_FONTS.filter(f => f.css).forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.css;
+    opt.textContent = f.name;
+    fontSelect.appendChild(opt);
+  });
+  fontSelect.addEventListener("mousedown", () => { if (activeFormatField) activeFormatField._lastSelection = [activeFormatField.selectionStart, activeFormatField.selectionEnd]; });
+  fontSelect.addEventListener("change", () => {
+    if (!activeFormatField) return;
+    const sel = activeFormatField._lastSelection;
+    if (sel) { activeFormatField.selectionStart = sel[0]; activeFormatField.selectionEnd = sel[1]; }
+    wrapSelection(`<span style="font-family:${fontSelect.value}">`, "</span>");
+    fontSelect.selectedIndex = -1;
+  });
+  const fontRow = document.createElement("div");
+  fontRow.className = "master-format-row";
+  const fontLbl = document.createElement("label");
+  fontLbl.textContent = "Font";
+  fontRow.appendChild(fontLbl);
+  fontRow.appendChild(fontSelect);
+  bar.appendChild(fontRow);
+
+  const grid = document.createElement("div");
+  grid.className = "master-format-grid";
+  const addBtn = (label, title2, onClick) => {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "format-btn";
     b.textContent = label;
-    b.title = title;
-    b.addEventListener("click", (e) => { e.preventDefault(); onClick(); });
-    bar.appendChild(b);
+    b.title = title2;
+    // mousedown (not click) so we still have the field's selection before it blurs
+    b.addEventListener("mousedown", (e) => { e.preventDefault(); onClick(); });
+    grid.appendChild(b);
   };
-  addBtn("B", "Bold", () => wrapSelection(textarea, "<b>", "</b>"));
-  addBtn("I", "Italic", () => wrapSelection(textarea, "<i>", "</i>"));
-  addBtn("U", "Underline", () => wrapSelection(textarea, "<u>", "</u>"));
-  addBtn("A+", "Bigger text", () => wrapSelection(textarea, '<span style="font-size:1.3em">', "</span>"));
-  addBtn("A−", "Smaller text", () => wrapSelection(textarea, '<span style="font-size:0.82em">', "</span>"));
-  addBtn("x²", "Superscript", () => wrapSelection(textarea, "<sup>", "</sup>"));
-  addBtn("x₂", "Subscript", () => wrapSelection(textarea, "<sub>", "</sub>"));
-  addBtn("AA", "UPPERCASE", () => transformSelectionCase(textarea, s => s.toUpperCase()));
-  addBtn("aa", "lowercase", () => transformSelectionCase(textarea, s => s.toLowerCase()));
-  addBtn("Aa", "Title Case", () => transformSelectionCase(textarea, s => s.replace(/\w\S*/g, w => w[0].toUpperCase() + w.slice(1).toLowerCase())));
-  const hint = document.createElement("span");
-  hint.className = "format-hint";
-  hint.textContent = "select text, then click a button";
-  bar.appendChild(hint);
-  return bar;
+  addBtn("B", "Bold", () => wrapSelection("<b>", "</b>"));
+  addBtn("I", "Italic", () => wrapSelection("<i>", "</i>"));
+  addBtn("U", "Underline", () => wrapSelection("<u>", "</u>"));
+  addBtn("A+", "Bigger text", () => wrapSelection('<span style="font-size:1.3em">', "</span>"));
+  addBtn("A−", "Smaller text", () => wrapSelection('<span style="font-size:0.82em">', "</span>"));
+  addBtn("x²", "Superscript", () => wrapSelection("<sup>", "</sup>"));
+  addBtn("x₂", "Subscript", () => wrapSelection("<sub>", "</sub>"));
+  addBtn("AA", "UPPERCASE", () => transformSelectionCase(s => s.toUpperCase()));
+  addBtn("aa", "lowercase", () => transformSelectionCase(s => s.toLowerCase()));
+  addBtn("Aa", "Title Case", () => transformSelectionCase(s => s.replace(/\w\S*/g, w => w[0].toUpperCase() + w.slice(1).toLowerCase())));
+  bar.appendChild(grid);
+
+  document.body.appendChild(bar);
 }
 
 /* ---------------- SITE + NAV ---------------- */
@@ -1234,6 +1301,8 @@ document.getElementById("github-test-btn").addEventListener("click", handleGithu
 document.getElementById("github-forget-btn").addEventListener("click", handleGithubForget);
 
 /* ---------------- INIT ---------------- */
+buildMasterFormatToolbar();
+setupAdminBackToTop();
 renderGithubFields();
 renderThemeSwatches();
 renderFontSwatches();
