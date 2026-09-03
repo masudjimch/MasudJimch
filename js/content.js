@@ -179,8 +179,8 @@ const SITE_CONTENT = {
     "ctaHref": "#contact",
     "photo": "images/profile.svg",
     "status": {
-      "en": "Available",
-      "bn": "উপলব্ধ"
+      "en": "",
+      "bn": ""
     },
     "badges": [
       {
