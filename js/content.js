@@ -185,15 +185,15 @@ const SITE_CONTENT = {
     "badges": [
       {
         "icon": "🔬",
-        "label": "Anatomist"
+        "label": "<span style=\"font-family:'Syne', sans-serif\"><b>Anatomist</b></span>"
       },
       {
         "icon": "🎓",
-        "label": "Educator"
+        "label": "<span style=\"font-family:'Marcellus', Georgia, serif\"><b>Educator</b></span>"
       },
       {
         "icon": "🧬",
-        "label": "Researcher"
+        "label": "<span style=\"font-family:'Poppins', sans-serif\"><b>Researcher</b></span>"
       }
     ]
   },
