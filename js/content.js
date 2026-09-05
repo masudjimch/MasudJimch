@@ -5,7 +5,7 @@
 
 const SITE_CONTENT = {
   "site": {
-    "name": "Moshiur <i><span style=\"color:#d357fe\">Masud</span></i>",
+    "name": "Moshiur <i><span style=\"color:#d357fe\"><span style=\"color:#e392fe\">Masud</span></span></i>",
     "initials": "MMR",
     "tagline": "Anatomist, Educator & Researcher",
     "footerNote": {
