@@ -108,7 +108,39 @@ function applyStyling(themeId, fontPresetId) {
   }
 }
 
+// --- Custom (user-added) fonts --------------------------------------------
+// Builds a Google Fonts CSS URL for a font family name, e.g. "Lobster" or
+// "Playfair Display" -> https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&display=swap
+function googleFontUrl(name) {
+  const family = name.trim().replace(/\s+/g, "+");
+  return `https://fonts.googleapis.com/css2?family=${family}:wght@400;500;600;700&display=swap`;
+}
+
+// Injects a <link> tag for each custom font in site.customFonts so it's
+// actually loadable — call this on every page (index.html and admin.html)
+// as early as possible, since fonts take a moment to fetch.
+function injectCustomFonts(customFonts) {
+  (customFonts || []).forEach(f => {
+    if (!f || !f.name) return;
+    const id = "custom-font-" + f.name.replace(/\s+/g, "-").toLowerCase();
+    if (document.getElementById(id)) return;
+    const link = document.createElement("link");
+    link.id = id;
+    link.rel = "stylesheet";
+    link.href = googleFontUrl(f.name);
+    document.head.appendChild(link);
+  });
+}
+
+// Returns the merged list of built-in + custom fonts as {name, css} pairs,
+// for populating font dropdowns (formatting toolbar, per-section font picker).
+function getAllAvailableFonts(customFonts) {
+  const custom = (customFonts || []).map(f => ({ name: f.name + " (your font)", css: `'${f.name}', sans-serif` }));
+  return custom;
+}
+
 if (typeof SITE_CONTENT !== "undefined") {
+  injectCustomFonts(SITE_CONTENT.site && SITE_CONTENT.site.customFonts);
   const fp = (SITE_CONTENT.site && SITE_CONTENT.site.fontPreset) || "theme-default";
   if (fp !== "theme-default") applyFontPreset(fp);
 }

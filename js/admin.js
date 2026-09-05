@@ -229,6 +229,46 @@ function renderFontSwatches() {
   });
 }
 
+function renderCustomFontsAdmin() {
+  data.site.customFonts = data.site.customFonts || [];
+  const list = clear("custom-fonts-list");
+
+  data.site.customFonts.forEach((f, i) => {
+    const row = document.createElement("div");
+    row.className = "custom-font-row";
+    row.innerHTML = `<span class="custom-font-name" style="font-family:'${f.name}', sans-serif">${f.name}</span>`;
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.className = "remove-btn";
+    removeButton.textContent = "Remove ✕";
+    removeButton.addEventListener("click", () => {
+      data.site.customFonts.splice(i, 1);
+      renderCustomFontsAdmin();
+      buildMasterFormatToolbar();
+      showToast(`Removed "${f.name}"`);
+    });
+    row.appendChild(removeButton);
+    list.appendChild(row);
+  });
+
+  const input = document.getElementById("custom-font-input");
+  const addButton = document.getElementById("add-custom-font-btn");
+  addButton.onclick = () => {
+    const name = input.value.trim();
+    if (!name) return;
+    if (data.site.customFonts.some(f => f.name.toLowerCase() === name.toLowerCase())) {
+      showToast(`"${name}" is already added`);
+      return;
+    }
+    data.site.customFonts.push({ name });
+    injectCustomFonts([{ name }]);
+    input.value = "";
+    renderCustomFontsAdmin();
+    buildMasterFormatToolbar();
+    showToast(`Added "${name}" — try it from the Format toolbar`);
+  };
+}
+
 /* ---------------- PER-SECTION FONT & COLOR ---------------- */
 const SECTION_LABELS = {
   home: "Home / Hero", about: "About", publications: "Publications", apps: "Apps",
@@ -443,7 +483,68 @@ function setupAdminBackToTop() {
   btn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
 }
 
+/* ---------------- LIVE PREVIEW (unsaved edits, before GitHub/download) ---------------- */
+let livePreviewOpen = false;
+let livePreviewLoaded = false;
+let livePreviewLastSnapshot = "";
+let livePreviewPoller = null;
+
+function refreshLivePreview() {
+  const frame = document.getElementById("live-preview-frame");
+  const win = frame && frame.contentWindow;
+  if (!win || !win.SITE_CONTENT || !win.renderAll) return; // not loaded yet
+  win.SITE_CONTENT = JSON.parse(JSON.stringify(data));
+  try {
+    if (win.injectCustomFonts) win.injectCustomFonts(win.SITE_CONTENT.site.customFonts);
+    if (win.applyStyling) win.applyStyling(win.SITE_CONTENT.site.theme, win.SITE_CONTENT.site.fontPreset);
+    win.renderAll();
+    if (win.renderSeo) win.renderSeo();
+  } catch (e) { /* preview is best-effort; never let it break the editor */ }
+}
+
+function setupLivePreview() {
+  const toggleBtn = document.getElementById("live-preview-toggle");
+  const closeBtn = document.getElementById("live-preview-close");
+  const panel = document.getElementById("live-preview-panel");
+  const frame = document.getElementById("live-preview-frame");
+  if (!toggleBtn || !panel || !frame) return;
+
+  const open = () => {
+    livePreviewOpen = true;
+    panel.classList.add("open");
+    toggleBtn.classList.add("active");
+    if (!livePreviewLoaded) {
+      livePreviewLoaded = true;
+      frame.addEventListener("load", () => { livePreviewLastSnapshot = ""; refreshLivePreview(); });
+      frame.src = "index.html";
+    } else {
+      refreshLivePreview();
+    }
+    if (!livePreviewPoller) {
+      livePreviewPoller = setInterval(() => {
+        if (!livePreviewOpen) return;
+        const snap = JSON.stringify(data);
+        if (snap !== livePreviewLastSnapshot) {
+          livePreviewLastSnapshot = snap;
+          refreshLivePreview();
+        }
+      }, 700);
+    }
+  };
+  const close = () => {
+    livePreviewOpen = false;
+    panel.classList.remove("open");
+    toggleBtn.classList.remove("active");
+  };
+
+  toggleBtn.addEventListener("click", () => (livePreviewOpen ? close() : open()));
+  closeBtn.addEventListener("click", close);
+}
+
 function buildMasterFormatToolbar() {
+  const existing = document.getElementById("master-format-toolbar");
+  if (existing) existing.remove();
+
   const bar = document.createElement("div");
   bar.id = "master-format-toolbar";
   bar.className = "master-format-toolbar disabled";
@@ -459,21 +560,41 @@ function buildMasterFormatToolbar() {
   status.textContent = "Click into any text field, select some words, then use the buttons below.";
   bar.appendChild(status);
 
+  // Restores the active field's selection (captured on mousedown, before focus
+  // moves to the select/color-picker) so the wrap applies to the right spot.
+  const restoreSelection = () => {
+    if (!activeFormatField) return;
+    const sel = activeFormatField._lastSelection;
+    if (sel) { activeFormatField.selectionStart = sel[0]; activeFormatField.selectionEnd = sel[1]; }
+  };
+  const captureSelection = () => { if (activeFormatField) activeFormatField._lastSelection = [activeFormatField.selectionStart, activeFormatField.selectionEnd]; };
+
   const fontSelect = document.createElement("select");
   fontSelect.className = "master-format-font-select";
+  const defaultOpt = document.createElement("option");
+  defaultOpt.value = "";
+  defaultOpt.textContent = "Choose a font…";
+  defaultOpt.disabled = true;
+  defaultOpt.selected = true;
+  fontSelect.appendChild(defaultOpt);
   HEADING_FONTS.filter(f => f.css).forEach(f => {
     const opt = document.createElement("option");
     opt.value = f.css;
     opt.textContent = f.name;
     fontSelect.appendChild(opt);
   });
-  fontSelect.addEventListener("mousedown", () => { if (activeFormatField) activeFormatField._lastSelection = [activeFormatField.selectionStart, activeFormatField.selectionEnd]; });
+  getAllAvailableFonts(data.site.customFonts).forEach(f => {
+    const opt = document.createElement("option");
+    opt.value = f.css;
+    opt.textContent = f.name;
+    fontSelect.appendChild(opt);
+  });
+  fontSelect.addEventListener("mousedown", captureSelection);
   fontSelect.addEventListener("change", () => {
     if (!activeFormatField) return;
-    const sel = activeFormatField._lastSelection;
-    if (sel) { activeFormatField.selectionStart = sel[0]; activeFormatField.selectionEnd = sel[1]; }
+    restoreSelection();
     wrapSelection(`<span style="font-family:${fontSelect.value}">`, "</span>");
-    fontSelect.selectedIndex = -1;
+    fontSelect.selectedIndex = 0;
   });
   const fontRow = document.createElement("div");
   fontRow.className = "master-format-row";
@@ -482,6 +603,24 @@ function buildMasterFormatToolbar() {
   fontRow.appendChild(fontLbl);
   fontRow.appendChild(fontSelect);
   bar.appendChild(fontRow);
+
+  const colorInput = document.createElement("input");
+  colorInput.type = "color";
+  colorInput.className = "master-format-color-input";
+  colorInput.value = "#c08a2e";
+  colorInput.addEventListener("mousedown", captureSelection);
+  colorInput.addEventListener("input", () => {
+    if (!activeFormatField) return;
+    restoreSelection();
+    wrapSelection(`<span style="color:${colorInput.value}">`, "</span>");
+  });
+  const colorRow = document.createElement("div");
+  colorRow.className = "master-format-row";
+  const colorLbl = document.createElement("label");
+  colorLbl.textContent = "Text color";
+  colorRow.appendChild(colorLbl);
+  colorRow.appendChild(colorInput);
+  bar.appendChild(colorRow);
 
   const grid = document.createElement("div");
   grid.className = "master-format-grid";
@@ -1303,9 +1442,11 @@ document.getElementById("github-forget-btn").addEventListener("click", handleGit
 /* ---------------- INIT ---------------- */
 buildMasterFormatToolbar();
 setupAdminBackToTop();
+setupLivePreview();
 renderGithubFields();
 renderThemeSwatches();
 renderFontSwatches();
+renderCustomFontsAdmin();
 renderSectionStyles();
 renderSite();
 renderCustomSectionsAdmin();

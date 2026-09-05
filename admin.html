@@ -18,12 +18,21 @@
       <p class="admin-help">Change anything below, then click <strong>Save to GitHub</strong> to publish instantly — or use <strong>Download content.js</strong> if you'd rather upload it yourself.</p>
     </div>
     <div class="admin-actions">
-      <a class="btn btn-outline" href="index.html" target="_blank">👁 Preview site ↗</a>
+      <button class="btn btn-outline" id="live-preview-toggle">👁 Live preview</button>
+      <a class="btn btn-outline" href="index.html" target="_blank">↗ Saved site</a>
       <button class="btn btn-gold" id="save-github-btn">💾 Save to GitHub</button>
       <button class="btn btn-outline" id="download-btn">⬇ Download content.js</button>
     </div>
   </div>
 </header>
+
+<div class="live-preview-panel" id="live-preview-panel">
+  <div class="live-preview-panel-head">
+    <span>Live preview — updates as you type, before you save anything</span>
+    <button type="button" id="live-preview-close" aria-label="Close preview">✕</button>
+  </div>
+  <iframe id="live-preview-frame" title="Live site preview"></iframe>
+</div>
 
 <main class="wrap admin-main">
 
@@ -48,6 +57,14 @@
     <h2>Typography</h2>
     <p class="admin-help">Optionally override the fonts, independent of the color theme above. Choose "Theme Default" to let the theme decide.</p>
     <div id="font-swatches" class="theme-swatches"></div>
+
+    <h3>Add your own font</h3>
+    <p class="admin-help">Type the exact name of any font from <a href="https://fonts.google.com" target="_blank" rel="noopener">fonts.google.com</a> (e.g. "Lobster" or "Playfair Display") — it'll be loaded automatically and show up in the formatting toolbar and section font pickers.</p>
+    <div id="custom-fonts-list"></div>
+    <div class="custom-font-add-row">
+      <input type="text" id="custom-font-input" placeholder="e.g. Lobster">
+      <button type="button" class="btn-add" id="add-custom-font-btn">+ Add font</button>
+    </div>
   </section>
 
   <section class="admin-card">
