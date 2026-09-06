@@ -498,3 +498,20 @@
   width: 100%; height: 560px; border: none; display: block; background: #fff;
 }
 #live-preview-toggle.active { background: var(--gold); border-color: var(--gold); color: var(--night); }
+
+.live-preview-status {
+  display: none;
+  padding: 40px 24px;
+  color: var(--on-dark);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  text-align: center;
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.live-preview-status a { color: var(--gold); }
+.live-preview-panel[data-state="loading"] .live-preview-loading { display: block; }
+.live-preview-panel[data-state="error"] .live-preview-error { display: block; }
+.live-preview-panel[data-state="loading"] #live-preview-frame,
+.live-preview-panel[data-state="error"] #live-preview-frame { display: none; }

@@ -486,20 +486,27 @@ function setupAdminBackToTop() {
 /* ---------------- LIVE PREVIEW (unsaved edits, before GitHub/download) ---------------- */
 let livePreviewOpen = false;
 let livePreviewLoaded = false;
-let livePreviewLastSnapshot = "";
 let livePreviewPoller = null;
 
 function refreshLivePreview() {
   const frame = document.getElementById("live-preview-frame");
   const win = frame && frame.contentWindow;
   if (!win || !win.SITE_CONTENT || !win.renderAll) return; // not loaded yet
-  win.SITE_CONTENT = JSON.parse(JSON.stringify(data));
   try {
+    win.SITE_CONTENT = JSON.parse(JSON.stringify(data));
     if (win.injectCustomFonts) win.injectCustomFonts(win.SITE_CONTENT.site.customFonts);
     if (win.applyStyling) win.applyStyling(win.SITE_CONTENT.site.theme, win.SITE_CONTENT.site.fontPreset);
     win.renderAll();
     if (win.renderSeo) win.renderSeo();
-  } catch (e) { /* preview is best-effort; never let it break the editor */ }
+    setLivePreviewState("ready");
+  } catch (e) {
+    setLivePreviewState("error");
+  }
+}
+
+function setLivePreviewState(state) {
+  const panel = document.getElementById("live-preview-panel");
+  if (panel) panel.dataset.state = state;
 }
 
 function setupLivePreview() {
@@ -515,20 +522,26 @@ function setupLivePreview() {
     toggleBtn.classList.add("active");
     if (!livePreviewLoaded) {
       livePreviewLoaded = true;
-      frame.addEventListener("load", () => { livePreviewLastSnapshot = ""; refreshLivePreview(); });
+      setLivePreviewState("loading");
+      frame.addEventListener("load", () => setTimeout(refreshLivePreview, 150));
+      // If nothing has succeeded after 10s (blocked iframe, slow network,
+      // browser restrictions when opened as a local file, etc.) show a
+      // friendly fallback instead of leaving a blank/frozen-looking panel.
+      setTimeout(() => {
+        if (panel.dataset.state === "loading") setLivePreviewState("error");
+      }, 10000);
       frame.src = "index.html";
     } else {
       refreshLivePreview();
     }
+    // Deliberately simple: just re-render on a fixed tick while the panel is
+    // open, rather than trying to detect exactly what changed. Re-rendering
+    // unchanged content is cheap, and this can't get "stuck" the way a
+    // change-detection diff could if a snapshot comparison ever misfired.
     if (!livePreviewPoller) {
       livePreviewPoller = setInterval(() => {
-        if (!livePreviewOpen) return;
-        const snap = JSON.stringify(data);
-        if (snap !== livePreviewLastSnapshot) {
-          livePreviewLastSnapshot = snap;
-          refreshLivePreview();
-        }
-      }, 700);
+        if (livePreviewOpen) refreshLivePreview();
+      }, 1000);
     }
   };
   const close = () => {

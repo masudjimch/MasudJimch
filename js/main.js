@@ -710,7 +710,9 @@ function setupActiveNav() {
   sections.forEach(s => observer.observe(s));
 }
 
+let _scrollRevealObserver = null;
 function setupScrollReveal() {
+  if (_scrollRevealObserver) _scrollRevealObserver.disconnect();
   const targets = document.querySelectorAll(
     ".section-head, .about-grid, .tabs, .contact-grid, .hero-photo-frame, .hero .wrap > div, " +
     ".app-card, .testimonial-card, .blog-card, .journey-item, .faq-item, .pub-item, .gallery-card, .stat, .floating-badge"
@@ -723,6 +725,7 @@ function setupScrollReveal() {
       }
     });
   }, { threshold: 0.12 });
+  _scrollRevealObserver = observer;
 
   targets.forEach(elx => {
     if (!elx.classList.contains("reveal-in")) elx.classList.add("reveal");
