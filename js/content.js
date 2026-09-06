@@ -208,8 +208,8 @@ const SITE_CONTENT = {
   },
   "about": {
     "heading": {
-      "en": "<span style=\"font-family:'Playfair Display', Georgia, serif\"><span style=\"color:#c0c0c0\"><i><b><span style=\"font-family:'Syncopate', sans-serif\"><b><i><span style=\"color:#e392fe\">About</span></i></b></span></b></i></span></span>",
-      "bn": "<b><i><span style=\"font-family:'Playfair Display', Georgia, serif\"><span style=\"font-family:'Syncopate', sans-serif\"><b><i>সম্পর্কে</i></b></span></span></i></b>"
+      "en": "About",
+      "bn": "সম্পর্কে"
     },
     "paragraphs": [
       "I am an Associate Professor of Anatomy at Ad-din Akij Medical College, with a research-oriented mindset and expertise in research methodology and biostatistics.",
