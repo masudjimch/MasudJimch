@@ -898,3 +898,24 @@ document.addEventListener("DOMContentLoaded", () => {
   setupHeaderShrink();
   setupHeroParallax();
 });
+
+// ---------------------------------------------------------------------------
+// Live preview bridge (used only when this page is loaded inside admin.html's
+// "Live preview" panel). We use postMessage rather than reading/writing
+// window properties directly because that also works when admin.html is
+// opened as a local file (file://), where the browser treats every file as
+// its own origin and blocks direct cross-frame script access.
+// ---------------------------------------------------------------------------
+window.addEventListener("message", (event) => {
+  if (!event.data || event.data.type !== "LIVE_PREVIEW_UPDATE") return;
+  try {
+    SITE_CONTENT = event.data.siteContent;
+    if (typeof injectCustomFonts === "function") injectCustomFonts(SITE_CONTENT.site.customFonts);
+    if (typeof applyStyling === "function") applyStyling(SITE_CONTENT.site.theme, SITE_CONTENT.site.fontPreset);
+    renderAll();
+    if (typeof renderSeo === "function") renderSeo();
+    if (event.source) event.source.postMessage({ type: "LIVE_PREVIEW_ACK" }, "*");
+  } catch (e) {
+    if (event.source) event.source.postMessage({ type: "LIVE_PREVIEW_ERROR" }, "*");
+  }
+});

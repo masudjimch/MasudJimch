@@ -512,6 +512,17 @@
 }
 .live-preview-status a { color: var(--gold); }
 .live-preview-panel[data-state="loading"] .live-preview-loading { display: block; }
-.live-preview-panel[data-state="error"] .live-preview-error { display: block; }
-.live-preview-panel[data-state="loading"] #live-preview-frame,
-.live-preview-panel[data-state="error"] #live-preview-frame { display: none; }
+.live-preview-panel[data-state="loading"] #live-preview-frame { display: none; }
+
+/* On "error" (couldn't confirm the ack), keep showing the iframe — it may
+   still be working fine — and just add a small warning banner above it. */
+.live-preview-error-banner {
+  display: none;
+  padding: 8px 20px;
+  background: #4a2a12;
+  color: #ffd9b3;
+  font-size: 0.78rem;
+  text-align: center;
+}
+.live-preview-error-banner a { color: #ffd9b3; text-decoration: underline; }
+.live-preview-panel[data-state="error"] .live-preview-error-banner { display: block; }

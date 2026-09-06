@@ -490,15 +490,13 @@ let livePreviewPoller = null;
 
 function refreshLivePreview() {
   const frame = document.getElementById("live-preview-frame");
-  const win = frame && frame.contentWindow;
-  if (!win || !win.SITE_CONTENT || !win.renderAll) return; // not loaded yet
+  if (!frame || !frame.contentWindow) return;
   try {
-    win.SITE_CONTENT = JSON.parse(JSON.stringify(data));
-    if (win.injectCustomFonts) win.injectCustomFonts(win.SITE_CONTENT.site.customFonts);
-    if (win.applyStyling) win.applyStyling(win.SITE_CONTENT.site.theme, win.SITE_CONTENT.site.fontPreset);
-    win.renderAll();
-    if (win.renderSeo) win.renderSeo();
-    setLivePreviewState("ready");
+    const siteContent = JSON.parse(JSON.stringify(data));
+    // "*" (any origin) is required here: when admin.html is opened as a local
+    // file, the browser gives the iframe an opaque "null" origin, and a
+    // specific targetOrigin would silently fail to deliver the message.
+    frame.contentWindow.postMessage({ type: "LIVE_PREVIEW_UPDATE", siteContent }, "*");
   } catch (e) {
     setLivePreviewState("error");
   }
@@ -516,6 +514,16 @@ function setupLivePreview() {
   const frame = document.getElementById("live-preview-frame");
   if (!toggleBtn || !panel || !frame) return;
 
+  // The iframe (running main.js) posts back LIVE_PREVIEW_ACK once it has
+  // actually applied an update, or LIVE_PREVIEW_ERROR if something in it
+  // threw — this is how we know the preview is genuinely working, without
+  // needing to read anything inside the iframe directly.
+  window.addEventListener("message", (event) => {
+    if (!event.data) return;
+    if (event.data.type === "LIVE_PREVIEW_ACK") setLivePreviewState("ready");
+    if (event.data.type === "LIVE_PREVIEW_ERROR") setLivePreviewState("error");
+  });
+
   const open = () => {
     livePreviewOpen = true;
     panel.classList.add("open");
@@ -523,10 +531,10 @@ function setupLivePreview() {
     if (!livePreviewLoaded) {
       livePreviewLoaded = true;
       setLivePreviewState("loading");
-      frame.addEventListener("load", () => setTimeout(refreshLivePreview, 150));
+      frame.addEventListener("load", () => setTimeout(refreshLivePreview, 200));
       // If nothing has succeeded after 10s (blocked iframe, slow network,
-      // browser restrictions when opened as a local file, etc.) show a
-      // friendly fallback instead of leaving a blank/frozen-looking panel.
+      // browser restrictions, etc.) show a friendly fallback instead of
+      // leaving a blank/frozen-looking panel.
       setTimeout(() => {
         if (panel.dataset.state === "loading") setLivePreviewState("error");
       }, 10000);
@@ -534,10 +542,10 @@ function setupLivePreview() {
     } else {
       refreshLivePreview();
     }
-    // Deliberately simple: just re-render on a fixed tick while the panel is
-    // open, rather than trying to detect exactly what changed. Re-rendering
-    // unchanged content is cheap, and this can't get "stuck" the way a
-    // change-detection diff could if a snapshot comparison ever misfired.
+    // Deliberately simple: just re-send the current content on a fixed tick
+    // while the panel is open, rather than trying to detect exactly what
+    // changed. Re-rendering unchanged content is cheap, and this can't get
+    // "stuck" the way a change-detection diff could if it ever misfired.
     if (!livePreviewPoller) {
       livePreviewPoller = setInterval(() => {
         if (livePreviewOpen) refreshLivePreview();
