@@ -49,13 +49,13 @@ function renderNav() {
   const builtinItems = SITE_CONTENT.nav.filter(item => {
     const id = item.href.replace("#", "");
     return vis[id] !== false;
-  }).map(item => `<li><a href="${item.href}">${t(item.label)}</a></li>`);
+  }).map(item => `<li><a class="line-grow" href="${item.href}">${t(item.label)}</a></li>`);
 
   const order = getSectionOrder(SITE_CONTENT.site.sectionOrder, SITE_CONTENT.customSections);
   const customItems = (SITE_CONTENT.customSections || [])
     .filter(cs => vis[cs.id] !== false)
     .sort((a, b) => order.indexOf(a.id) - order.indexOf(b.id))
-    .map(cs => `<li><a href="#${cs.id}">${t(cs.title) || ""}</a></li>`);
+    .map(cs => `<li><a class="line-grow" href="#${cs.id}">${t(cs.title) || ""}</a></li>`);
 
   nav.innerHTML = builtinItems.concat(customItems).join("");
 
@@ -560,7 +560,7 @@ function renderFaq() {
   document.getElementById("faq-subheading").innerHTML = t(f.subheading);
 
   document.getElementById("faq-list").innerHTML = f.items.map((item) => `
-    <div class="faq-item">
+    <div class="faq-item accent-hover">
       <button type="button" class="faq-question">
         <span>${item.q || ""}</span>
         <span class="faq-caret">＋</span>
@@ -714,7 +714,7 @@ let _scrollRevealObserver = null;
 function setupScrollReveal() {
   if (_scrollRevealObserver) _scrollRevealObserver.disconnect();
   const targets = document.querySelectorAll(
-    ".section-head, .about-grid, .tabs, .contact-grid, .hero-photo-frame, .hero .wrap > div, " +
+    ".section-head, .about-grid, .tabs, .contact-grid, .hero .wrap > div:not(.hero-photo-frame), " +
     ".app-card, .testimonial-card, .blog-card, .journey-item, .faq-item, .pub-item, .gallery-card, .stat, .floating-badge"
   );
   const observer = new IntersectionObserver((entries) => {
@@ -758,11 +758,27 @@ function setupHeroParallax() {
   if (!frame) return;
   const onScroll = () => {
     const y = Math.min(window.scrollY, 600);
-    frame.style.transform = `translateY(${y * 0.08}px)`;
+    frame.style.setProperty("--parallax-y", `${(y * 0.08).toFixed(1)}px`);
     if (eyebrow) eyebrow.style.transform = `translateY(${y * 0.15}px)`;
   };
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });
+}
+
+function setupPhotoTilt() {
+  document.querySelectorAll(".hero-photo-frame, .about-photo").forEach(el => {
+    el.addEventListener("mousemove", (e) => {
+      const rect = el.getBoundingClientRect();
+      const px = (e.clientX - rect.left) / rect.width - 0.5;
+      const py = (e.clientY - rect.top) / rect.height - 0.5;
+      el.style.setProperty("--tilt-x", `${(-py * 12).toFixed(2)}deg`);
+      el.style.setProperty("--tilt-y", `${(px * 12).toFixed(2)}deg`);
+    });
+    el.addEventListener("mouseleave", () => {
+      el.style.setProperty("--tilt-x", "0deg");
+      el.style.setProperty("--tilt-y", "0deg");
+    });
+  });
 }
 
 function setupStagger() {
@@ -776,7 +792,7 @@ function setupStagger() {
 }
 
 function setupTiltCards() {
-  const selectors = ".app-card, .testimonial-card, .blog-card, .gallery-card";
+  const selectors = ".app-card, .testimonial-card, .blog-card, .gallery-card, .stat";
   document.querySelectorAll(selectors).forEach(card => {
     card.classList.add("tilt-card");
     card.addEventListener("mousemove", (e) => {
@@ -897,6 +913,7 @@ document.addEventListener("DOMContentLoaded", () => {
   setupBackToTop();
   setupHeaderShrink();
   setupHeroParallax();
+  setupPhotoTilt();
 });
 
 // ---------------------------------------------------------------------------

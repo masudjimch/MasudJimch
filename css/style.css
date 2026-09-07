@@ -336,6 +336,10 @@ nav.main-nav a.active {
   position: relative;
   margin: 0 auto;
   max-width: 340px;
+  --tilt-x: 0deg; --tilt-y: 0deg; --parallax-y: 0px;
+  transform: translateY(var(--parallax-y)) perspective(1000px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.12s ease-out;
+  will-change: transform;
 }
 .hero-photo-frame img { border-radius: var(--radius); width: 100%; }
 
@@ -379,7 +383,7 @@ nav.main-nav a.active {
   flex-direction: column;
   gap: 30px;
 }
-.journey-item { position: relative; }
+.journey-item { position: relative; transition: transform 0.25s ease; }
 .journey-item::before {
   content: "";
   position: absolute;
@@ -391,7 +395,12 @@ nav.main-nav a.active {
   background: var(--gold);
   border: 2px solid var(--paper);
   box-shadow: 0 0 0 2px var(--gold);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
+.journey-item:hover { transform: translateX(6px); }
+.journey-item:hover::before { transform: scale(1.4); box-shadow: 0 0 0 4px var(--gold-soft); }
+.journey-item:hover .journey-title { color: var(--gold); }
+.journey-title { transition: color 0.2s ease; }
 .journey-year {
   font-family: var(--font-mono);
   font-size: 0.78rem;
@@ -702,6 +711,10 @@ nav.main-nav a.active {
   flex-shrink: 0;
 }
 .faq-item.open .faq-caret { transform: rotate(45deg); }
+.faq-question:hover .faq-caret { transform: scale(1.25); color: var(--gold); }
+.faq-item.open .faq-question:hover .faq-caret { transform: rotate(45deg) scale(1.25); }
+.faq-question:hover span:first-child { color: var(--gold); }
+.faq-question span:first-child { transition: color 0.2s ease; }
 .faq-answer {
   max-height: 0;
   overflow: hidden;
@@ -765,7 +778,9 @@ nav.main-nav a.active {
   border-radius: var(--radius);
   object-fit: cover;
   flex-shrink: 0;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
+.app-card:hover .app-icon { transform: rotate(-6deg) scale(1.08); box-shadow: 0 10px 18px rgba(16,32,44,0.2); }
 .app-name {
   font-family: var(--font-display);
   font-size: 1.1rem;
@@ -858,6 +873,44 @@ nav.main-nav a.active {
 }
 
 /* ===================================================================
+   ACCENT HOVER LINE (grows a colored bar on the left, used for list-style
+   rows: FAQ items, journey list, credentials, contact & social links, nav)
+   =================================================================== */
+.accent-hover {
+  position: relative;
+  transition: transform 0.25s ease, background 0.25s ease, padding-left 0.25s ease;
+}
+.accent-hover::before {
+  content: "";
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: var(--gold);
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.15s ease;
+}
+.accent-hover:hover::before { transform: scaleY(1); opacity: 1; }
+.accent-hover:hover { padding-left: 14px; }
+
+/* Simple hover-line for inline text links (nav, social, contact) — an
+   underline that grows from the left rather than just fading in. */
+.line-grow {
+  position: relative;
+  transition: color 0.2s ease;
+}
+.line-grow::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 100%; bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transition: right 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.line-grow:hover::after { right: 0; }
+
+/* ===================================================================
    HEADER SCROLL STATE
    =================================================================== */
 header.site-header { transition: box-shadow 0.3s ease, padding 0.3s ease; }
@@ -867,10 +920,19 @@ header.site-header.scrolled {
 header.site-header.scrolled .nav-row { padding-top: 10px; padding-bottom: 10px; }
 
 /* ===================================================================
-   HERO PARALLAX
+   HERO PARALLAX + 3D PHOTO TILT
    =================================================================== */
-.hero-photo-frame { transition: transform 0.1s linear; }
 .hero-eyebrow { transition: transform 0.1s linear; }
+.about-photo {
+  --tilt-x: 0deg; --tilt-y: 0deg;
+  transform: perspective(900px) rotateX(var(--tilt-x)) rotateY(var(--tilt-y));
+  transition: transform 0.15s ease-out, box-shadow 0.2s ease;
+  will-change: transform;
+}
+.about-photo:hover { box-shadow: 0 22px 40px rgba(16, 32, 44, 0.2); }
+@media (hover: none) {
+  .hero-photo-frame, .about-photo { transform: none !important; }
+}
 
 /* ===================================================================
    BACK TO TOP FLOATING BUTTON
@@ -958,8 +1020,11 @@ section { padding: 84px 0; }
   font-size: 0.88rem;
   padding: 6px 0;
   color: var(--ink);
+  transition: transform 0.2s ease, color 0.2s ease, padding-left 0.2s ease;
 }
-.credentials li::before { content: "— "; color: var(--gold); }
+.credentials li::before { content: "— "; color: var(--gold); transition: color 0.2s ease; }
+.credentials li:hover { transform: translateX(6px); padding-left: 4px; color: var(--gold); }
+.credentials li:hover::before { color: var(--sage); }
 
 .stats-row {
   display: flex;
@@ -967,12 +1032,21 @@ section { padding: 84px 0; }
   margin-top: 30px;
   flex-wrap: wrap;
 }
+.stat {
+  padding: 10px 14px;
+  margin: -10px -14px;
+  border-radius: 10px;
+  transition: background 0.2s ease;
+}
+.stat:hover { background: var(--paper-dim); }
 .stat .value {
   font-family: var(--font-display);
   font-size: 2rem;
   color: var(--ink);
   font-weight: 600;
+  transition: color 0.2s ease;
 }
+.stat:hover .value { color: var(--gold); }
 .stat .label {
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -1144,7 +1218,8 @@ section { padding: 84px 0; }
   margin: 4px 0 0;
   font-size: 1.05rem;
 }
-.contact-block a { text-decoration: none; border-bottom: 1px solid rgba(192,138,46,0.6); }
+.contact-block a { text-decoration: none; border-bottom: 1px solid rgba(192,138,46,0.6); transition: color 0.2s ease, border-color 0.2s ease; }
+.contact-block a:hover { color: var(--gold-soft); border-color: var(--gold-soft); }
 .social-links { display: flex; flex-direction: column; gap: 14px; }
 .social-links a {
   text-decoration: none;
@@ -1155,8 +1230,11 @@ section { padding: 84px 0; }
   padding-bottom: 8px;
   display: flex;
   justify-content: space-between;
+  transition: color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
-.social-links a:hover { border-color: var(--gold); color: var(--gold-soft); }
+.social-links a:hover { border-color: var(--gold); color: var(--gold-soft); transform: translateX(6px); }
+.social-links a span:last-child { transition: transform 0.25s ease; }
+.social-links a:hover span:last-child { transform: translate(3px, -3px); }
 
 @media (max-width: 700px) {
   .contact-grid { grid-template-columns: 1fr; }
