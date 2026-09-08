@@ -228,8 +228,8 @@ const SITE_CONTENT = {
       }
     ],
     "credentials": [
-      "<span style=\"font-family:'Righteous', sans-serif\">MS (Anatomy) </span>— Bangabandhu Sheikh Mujib Medical University, 2020",
-      "<span style=\"font-family:'Righteous', sans-serif\">MBBS</span> — Jahurul Islam Medical College, Dhaka University, 2012",
+      "<span style=\"font-family:'Righteous', sans-serif\">MS (Anatomy) — Bangabandhu Sheikh Mujib Medical University, 2020 </span>",
+      "<span style=\"font-family:'Righteous', sans-serif\">MBBS — Jahurul Islam Medical College, Dhaka University, 2012 </span> ",
       "<span style=\"font-family:'Righteous', sans-serif\">BMDC Registration: A 66165</span>"
     ]
   },
