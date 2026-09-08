@@ -182,6 +182,7 @@
   gap: 5px;
 }
 .field.span-2 { grid-column: 1 / -1; }
+.pdf-uploader.span-2 { grid-column: 1 / -1; }
 .field label {
   font-family: var(--font-mono);
   font-size: 0.74rem;

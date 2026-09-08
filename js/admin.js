@@ -806,7 +806,7 @@ function renderHero() {
   c.appendChild(bilingualField("Button text", h, "ctaLabel"));
   c.appendChild(field({ label: "Button icon (emoji)", value: h.ctaIcon, richText: false, onChange: v => h.ctaIcon = v }));
   c.appendChild(field({ label: "Button links to", value: h.ctaHref, richText: false, onChange: v => h.ctaHref = v }));
-  c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: h.photo, richText: false, onChange: v => h.photo = v, span2: true }));
+  c.appendChild(buildMainPhotoUploader(h, "photo", renderHero));
   c.appendChild(bilingualField("Status text (e.g. Available)", h, "status"));
 
   const badgeList = clear("hero-badges-list");
@@ -868,7 +868,7 @@ function renderAbout() {
   const c = clear("about-fields");
   const a = data.about;
   c.appendChild(bilingualField("Section heading", a, "heading"));
-  c.appendChild(field({ label: "Photo path (images/yourfile.jpg)", value: a.photo, richText: false, onChange: v => a.photo = v }));
+  c.appendChild(buildMainPhotoUploader(a, "photo", renderAbout));
 
   const paras = clear("about-paragraphs");
   a.paragraphs.forEach((p, i) => {
@@ -955,6 +955,7 @@ function buildPdfUploader(item, onChange) {
 
 /* ---------------- APPS ---------------- */
 const ICON_MAX_BYTES = 1.5 * 1024 * 1024; // 1.5MB — app icons should be small
+const MAIN_PHOTO_MAX_BYTES = 4 * 1024 * 1024; // 4MB — hero/about are bigger feature photos
 
 function buildIconUploader(app, onChange) {
   const wrap = document.createElement("div");
@@ -1099,6 +1100,43 @@ function renderJourney() {
 }
 
 /* ---------------- TESTIMONIALS ---------------- */
+// Same idea as buildPhotoUploader, but for a bigger feature photo (hero /
+// about) — larger preview, bigger size allowance, and any image format
+// (JPG, PNG, WEBP, GIF, SVG…) works, since the browser's file picker and
+// FileReader don't care about the extension.
+function buildMainPhotoUploader(target, key, onChange) {
+  const wrap = document.createElement("div");
+  wrap.className = "pdf-uploader span-2";
+  const label = document.createElement("label");
+  label.textContent = "Photo — click below to upload (JPG, PNG, WEBP, or any image file)";
+  wrap.appendChild(label);
+
+  if (target[key]) {
+    const status = document.createElement("div");
+    status.className = "pdf-status";
+    status.innerHTML = `<img src="${target[key]}" alt="" style="width:96px;height:96px;border-radius:8px;object-fit:cover;">`;
+    const rm = document.createElement("button");
+    rm.type = "button"; rm.className = "remove-btn"; rm.textContent = "Remove photo ✕";
+    rm.addEventListener("click", () => { target[key] = ""; onChange(); });
+    status.appendChild(rm);
+    wrap.appendChild(status);
+  } else {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.addEventListener("change", () => {
+      const file = input.files[0];
+      if (!file) return;
+      if (file.size > MAIN_PHOTO_MAX_BYTES) { showToast(`"${file.name}" is too large (max 4MB).`); input.value = ""; return; }
+      const reader = new FileReader();
+      reader.onload = () => { target[key] = reader.result; onChange(); };
+      reader.readAsDataURL(file);
+    });
+    wrap.appendChild(input);
+  }
+  return wrap;
+}
+
 function buildPhotoUploader(target, key, onChange) {
   const wrap = document.createElement("div");
   wrap.className = "pdf-uploader";
