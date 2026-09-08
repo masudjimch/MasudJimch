@@ -60,7 +60,7 @@ const SITE_CONTENT = {
     "whatsapp": "8801914128747",
     "gaId": "",
     "seoDescription": "Dr. Md. Moshiur Rahman — Associate Professor of Anatomy, medical educator, and researcher based in Khulna, Bangladesh.",
-    "socialImage": "images/profile.svg",
+    "socialImage": "images/profile.jpeg",
     "sectionVisibility": {
       "about": true,
       "publications": true,
