@@ -103,20 +103,6 @@ const SITE_CONTENT = {
     },
     {
       "label": {
-        "en": "Publications",
-        "bn": "প্রকাশনা"
-      },
-      "href": "#publications"
-    },
-    {
-      "label": {
-        "en": "Apps",
-        "bn": "অ্যাপস"
-      },
-      "href": "#apps"
-    },
-    {
-      "label": {
         "en": "Journey",
         "bn": "যাত্রা"
       },
@@ -124,10 +110,10 @@ const SITE_CONTENT = {
     },
     {
       "label": {
-        "en": "Testimonials",
-        "bn": "মতামত"
+        "en": "Publications",
+        "bn": "প্রকাশনা"
       },
-      "href": "#testimonials"
+      "href": "#publications"
     },
     {
       "label": {
@@ -138,10 +124,24 @@ const SITE_CONTENT = {
     },
     {
       "label": {
+        "en": "Testimonials",
+        "bn": "মতামত"
+      },
+      "href": "#testimonials"
+    },
+    {
+      "label": {
         "en": "Gallery",
         "bn": "গ্যালারি"
       },
       "href": "#gallery"
+    },
+    {
+      "label": {
+        "en": "Apps",
+        "bn": "অ্যাপস"
+      },
+      "href": "#apps"
     },
     {
       "label": {
